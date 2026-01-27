@@ -7,15 +7,16 @@
 
 import SwiftUI
 
+struct Task: Identifiable, Codable {
+    let id: UUID
+    var title: String
+    var point_value: Int
+    var icon: String
+}
+
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
+        //MainTabView()
     }
 }
 
