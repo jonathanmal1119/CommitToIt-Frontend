@@ -10,7 +10,7 @@ struct ProgressBarView: View {
     }
     
     func circleColor(for stepProgress: Double, currentProgress: Double) -> Color {
-        return currentProgress >= stepProgress ? .mint : Color.gray.opacity(0.3)
+        return currentProgress >= stepProgress ? .accent : .gray
     }
 
     var body: some View {
@@ -19,7 +19,7 @@ struct ProgressBarView: View {
                 Text("200")
                     .font(Font.largeTitle.bold())
                     .padding(.leading, 8)
-                Image(systemName: "star.fill").foregroundColor(.mint)
+                Image(systemName: "star.fill").foregroundColor(.accent)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             Text("Reward Points")
@@ -35,7 +35,7 @@ struct ProgressBarView: View {
                             .frame(height: 12)
                         
                         Capsule()
-                            .fill(Color.mint)
+                            .fill(.accent)
                             .frame(
                                 width: geometry.size.width * CGFloat(progress),
                                 height: 12
@@ -48,10 +48,13 @@ struct ProgressBarView: View {
                 .frame(height: 20)
                 
                 VStack {
-                    Circle()
-                        .fill(circleColor(for: 0.25, currentProgress: progress))
-                        .stroke(circleColor(for: 0.25, currentProgress: progress), lineWidth: 2)
-                        .frame(width: 20, height: 14)
+//                    Circle()
+//                        .fill(circleColor(for: 0.25, currentProgress: progress))
+//                        .stroke(circleColor(for: 0.25, currentProgress: progress), lineWidth: 2)
+//                        .frame(width: 20, height: 14)
+                    
+                    circleColor(for: 0.25, currentProgress: progress)
+                        .frame(width:5 ,height: 20)
                     
                     Text("25")
                         .font(.headline)
@@ -60,10 +63,12 @@ struct ProgressBarView: View {
                 .offset(x: -100, y: 9)
                 
                 VStack {
-                    Circle()
-                        .fill(circleColor(for: 0.5, currentProgress: progress))
-                        .stroke(circleColor(for: 0.5, currentProgress: progress), lineWidth: 2)
-                        .frame(width: 20, height: 14)
+//                    Circle()
+//                        .fill(circleColor(for: 0.5, currentProgress: progress))
+//                        .stroke(circleColor(for: 0.5, currentProgress: progress), lineWidth: 2)
+//                        .frame(width: 20, height: 14)
+                    circleColor(for: 0.5, currentProgress: progress)
+                        .frame(width:5 ,height: 20)
                     
                     Text("50")
                         .font(.headline)
@@ -72,10 +77,13 @@ struct ProgressBarView: View {
                 .offset(y: 9)
                 
                 VStack {
-                    Circle()
-                        .fill(circleColor(for: 0.75, currentProgress: progress))
-                        .stroke(circleColor(for: 0.75, currentProgress: progress), lineWidth: 2)
-                        .frame(width: 20, height: 14)
+//                    Circle()
+//                        .fill(circleColor(for: 0.75, currentProgress: progress))
+//                        .stroke(circleColor(for: 0.75, currentProgress: progress), lineWidth: 2)
+//                        .frame(width: 20, height: 14)
+                    
+                    circleColor(for: 0.75, currentProgress: progress)
+                        .frame(width:5 ,height: 20)
                     
                     Text("75")
                         .font(.headline)
@@ -83,17 +91,31 @@ struct ProgressBarView: View {
                 }
                 .offset(x: 100, y: 9)
                 
+                VStack {
+//                    Circle()
+//                        .fill(circleColor(for: 0.75, currentProgress: progress))
+//                        .stroke(circleColor(for: 0.75, currentProgress: progress), lineWidth: 2)
+//                        .frame(width: 20, height: 14)
+                    
+                    circleColor(for: 0.75, currentProgress: progress)
+                        .frame(width:5 ,height: 20)
+                    
+                    Text("")
+                        .font(.headline)
+                        .italic()
+                }
+                .offset(x: 200, y: 9)
+                
                 
             }
             .frame(height: 50)
         }
-        }
+    }
 }
 
 #Preview {
     VStack {
-        ProgressBarView(value: 25, total: 100)
+        ProgressBarView(value: 25, total: 100).environmentObject(DataManager())
     }
-    //.background(.red)
 }
 

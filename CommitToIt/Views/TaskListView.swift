@@ -8,11 +8,16 @@
 import SwiftUI
 
 struct TaskListView: View {
-    @State private var tasks : [Task] = []
-    @State private var isLoading = true
+    @State var tasks : [Task] = [
+        Task(id: UUID(), title: "Previe36d3673h3d73d7d3737337373w", point_value: 100, icon: "mug.fill"),
+        Task(id: UUID(), title: "Preview", point_value: 100, icon: "mug.fill"),
+        Task(id: UUID(), title: "Preview", point_value: 100, icon: "mug.fill"),
+        Task(id: UUID(), title: "Preview", point_value: 100, icon: "mug.fill"),
+        Task(id: UUID(), title: "Preview", point_value: 100, icon: "mug.fill")
+    ]
+    @State private var isLoading = false
     @State private var errorMessage: String?
     
-    //Add API call service here
     
     var body: some View {
         NavigationStack{
@@ -26,64 +31,55 @@ struct TaskListView: View {
                     }
                 }
                 else {
-                    List($tasks) { $task in
-                        HStack {
-                            Image(systemName: task.icon)
-                            
-                            Text("\(task.title)")
-                            
-                            Spacer()
-                            
-                            Text("+\(task.point_value)")
-                                .foregroundColor(.gray)
-                            Image(systemName: "star.fill").foregroundColor(.mint)
-                            Button(){
-                                
-                            } label: {
-                                ZStack {
-                                    Circle()
-                                        .foregroundColor(.gray.opacity(0.2))
-                                        .frame(width: 25, height: 20)
-                                    Image(systemName: "arrow.right")
-                                        .font(.system(size: 10, weight: .bold))
-                                        
-                                }
-                                
-                                    
-                            }
+                    List {
+                        ForEach(tasks) { task in
+                            createTaskEntry(task: task)
                         }
+                        .onDelete(perform: deleteTask)
                     }
                     .listStyle(.plain)
-                    .refreshable {
-                        await loadData()
-                    }
                 }
-            }
-            .task {
-                await loadData()
             }
         }
     }
     
-    private func loadData() async {
-        isLoading = true
-        errorMessage = nil
-        
-        do {
-            tasks = [Task(id: UUID(), title: "Test Task", point_value: 10, icon: "house"),
-                     Task(id: UUID(), title: "Test Task", point_value: 10, icon: "house"),
-                     Task(id: UUID(), title: "Test Taskr", point_value: 10, icon: "house"),
-                     Task(id: UUID(), title: "Test Taske", point_value: 10, icon: "house"),]
-            isLoading = false
+    func createTaskEntry(task : Task) -> some View {
+        HStack {
+            Image(systemName: task.icon)
+                .foregroundColor(.accent)
+                .font(.system(size: 25))
+            
+            Text("\(task.title)")
+                .font(.system(size: 25))
+                .lineLimit(1)
+                .truncationMode(.tail)
+            
+            Spacer(minLength: 40)
+            
+            Text("+\(task.point_value)")
+            Image(systemName: "star.fill")
+                .foregroundColor(.accent)
+                .padding(.top, -3)
+            Button(){
+                
+            } label: {
+                ZStack {
+                    Circle()
+                        .foregroundColor(.gray.opacity(0.2))
+                        .frame(width: 30, height: 30)
+                    Image(systemName: "arrow.right")
+                        .font(.system(size: 15))
+                    
+                }
+            }
         }
-//        catch {
-//            errorMessage = error.localizedDescription
-//            isLoading = false
-//        }
+    }
+    
+    func deleteTask(at offsets: IndexSet) {
+        tasks.remove(atOffsets: offsets)
     }
 }
 
 #Preview {
-    
-    TaskListView().cornerRadius(20).background(.black)
+    TaskListView()
 }

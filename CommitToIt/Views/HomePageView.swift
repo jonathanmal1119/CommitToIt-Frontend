@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct HomePageView: View {
+
     var body: some View {
         ZStack{
             LinearGradient(
@@ -18,16 +19,29 @@ struct HomePageView: View {
                 endPoint: .bottom
             )
             .ignoresSafeArea()
+            
             VStack{
+                HStack {
+                    Button() {
+                        
+                    } label: {
+                        Image(systemName: "gearshape.fill")
+                            .foregroundStyle(.background)
+                            .font(.largeTitle.bold())
+                    }
+                }
+                .frame(maxWidth: .infinity, alignment: .init(horizontal: .trailing, vertical: .top))
+                
+                Spacer(minLength: 200)
                 VStack {
                     ProgressBarView(value: 50, total: 100)
                 }
                 .padding(10)
-                .background(.white)
+                .background(.background)
                 .cornerRadius(15)
                 .shadow(radius: 10)
                 
-                Spacer(minLength: 40)
+                Spacer(minLength: 20)
                 
                 
                 
@@ -36,11 +50,11 @@ struct HomePageView: View {
                         .font(.title)
                         .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(8)
-                    Color.gray.opacity(0.2).frame(height: 1)
+                    Color.primary.opacity(0.3).frame(height: 1)
                     TaskListView()
                 }
                 .padding(10)
-                .background(.white)
+                .background(.background)
                 .cornerRadius(15)
                 .shadow(radius: 10)
                 
@@ -48,11 +62,29 @@ struct HomePageView: View {
             }
             .padding(20)
             .padding(.bottom, 60)
+                
+        }
+    }
+}
+
+struct  SettingsOverlay: View {
+    
+    var body:  some View {
+        ZStack {
+            Color.black.opacity(0.7)
+                .edgesIgnoringSafeArea(.all)
+            VStack {
+                Text("Settings")
+                    .font(.largeTitle)
+                    .padding()
+                Spacer()
+            }
         }
     }
 }
 
 #Preview {
     HomePageView()
+    //SettingsOverlay()
 }
 

@@ -19,22 +19,6 @@ struct MainTabView: View {
     @State private var selectedTab: Tabs = .home
     
     var body: some View {
-//        TabView(selection: $selectedTab) {
-//            HomePageView()
-//                .tabItem {
-//                    Image(systemName: "house.fill")
-//                    Text("Home")
-//                }
-//                .tag(0)
-//            
-//            TaskListView()
-//                .tabItem {
-//                    Image(systemName: "list.bullet")
-//                    Text("List")
-//                }
-//                .tag(1)
-//        }
-        
         ZStack (alignment: .bottom) {
             Group {
                 switch selectedTab {
@@ -43,7 +27,7 @@ struct MainTabView: View {
                 case .tasks:
                     TaskListView()
                 case .rewards:
-                    EmptyView()
+                    RewardsView()
                 case .history:
                     EmptyView()
                 }
@@ -65,7 +49,7 @@ struct BottomNavBar: View {
     @Binding var selectedTab: Tabs
     
     var body: some View {
-        HStack (spacing:30) {
+        HStack (spacing:50) {
             navButton(icon: "house.fill", tab: .home)
             navButton(icon: "list.clipboard.fill", tab: .tasks)
             navButton(icon: "giftcard.fill", tab: .rewards)
@@ -90,8 +74,8 @@ struct BottomNavBar: View {
         } label: {
             Image(systemName: icon)
                 .font(.system(size: 20, weight: .semibold))
-                .foregroundColor(selectedTab == tab ? .mint : .gray)
-                .scaleEffect(selectedTab == tab ? 1.25 : 1.0)
+                .foregroundColor(selectedTab == tab ? .accent : .gray)
+                .scaleEffect(selectedTab == tab ? 1.3 : 1.0)
         }
         .buttonStyle(.plain)
     }
