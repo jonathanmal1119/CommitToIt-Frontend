@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct HomePageView: View {
+    @EnvironmentObject var appState: AppState
 
     var body: some View {
         ZStack{
@@ -34,7 +35,7 @@ struct HomePageView: View {
                 
                 Spacer(minLength: 200)
                 VStack {
-                    ProgressBarView(value: 50, total: 100)
+                    ProgressBarView()
                 }
                 .padding(10)
                 .background(.background)
@@ -85,6 +86,6 @@ struct  SettingsOverlay: View {
 
 #Preview {
     HomePageView()
-    //SettingsOverlay()
+        .environmentObject(AppState(load_mock_data: true))
 }
 

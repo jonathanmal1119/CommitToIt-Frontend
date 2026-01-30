@@ -1,16 +1,13 @@
 //
-//  Reward 2.swift
+//  Project.swift
 //  CommitToIt
 //
 //  Created by Jonathan Malave on 1/29/26.
 //
+import Foundation
 
-
-struct Reward: Identifiable, Codable {
-    let id: UUID
+struct Project: Identifiable, Codable, Equatable, Hashable {
+    let id: Int
     var title: String
-    var description: String
-    var cost: Int
     var icon: String
-    var redeemed_at: Date?
 }

@@ -12,6 +12,7 @@ enum Tabs {
     case tasks
     case rewards
     case history
+    case transition
 }
 
 
@@ -22,15 +23,18 @@ struct MainTabView: View {
         ZStack (alignment: .bottom) {
             Group {
                 switch selectedTab {
-                case .home:
-                    HomePageView()
-                case .tasks:
-                    TaskListView()
-                case .rewards:
-                    RewardsView()
-                case .history:
-                    EmptyView()
+                    case .home:
+                        HomePageView()
+                    case .tasks:
+                        TaskTabView()
+                    case .rewards:
+                        RewardsView()
+                    case .history:
+                        EmptyView()
+                    case .transition:
+                        HistoryView()
                 }
+                
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             
@@ -38,10 +42,8 @@ struct MainTabView: View {
             HStack {
                 BottomNavBar(selectedTab: $selectedTab)
             }
-            //.background(.red)
-            
-            
         }
+        .animation(.easeIn(duration: 0), value: selectedTab)
     }
 }
 
@@ -53,7 +55,7 @@ struct BottomNavBar: View {
             navButton(icon: "house.fill", tab: .home)
             navButton(icon: "list.clipboard.fill", tab: .tasks)
             navButton(icon: "giftcard.fill", tab: .rewards)
-            navButton(icon: "clock.arrow.circlepath", tab: .history)
+            navButton(icon: "clock.arrow.circlepath", tab: .transition)
         }
         .padding(.horizontal, 28)
         .padding(.vertical, 14)
@@ -83,4 +85,5 @@ struct BottomNavBar: View {
 
 #Preview {
     MainTabView()
+        .environmentObject(AppState(load_mock_data: true))
 }

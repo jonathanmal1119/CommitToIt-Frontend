@@ -8,13 +8,9 @@
 import SwiftUI
 
 struct TaskListView: View {
-    @State var tasks : [Task] = [
-        Task(id: UUID(), title: "Previe36d3673h3d73d7d3737337373w", point_value: 100, icon: "mug.fill"),
-        Task(id: UUID(), title: "Preview", point_value: 100, icon: "mug.fill"),
-        Task(id: UUID(), title: "Preview", point_value: 100, icon: "mug.fill"),
-        Task(id: UUID(), title: "Preview", point_value: 100, icon: "mug.fill"),
-        Task(id: UUID(), title: "Preview", point_value: 100, icon: "mug.fill")
-    ]
+    @EnvironmentObject var appState: AppState
+    
+    @State var tasks : [Task] = []
     @State private var isLoading = false
     @State private var errorMessage: String?
     
@@ -32,10 +28,18 @@ struct TaskListView: View {
                 }
                 else {
                     List {
-                        ForEach(tasks) { task in
+                        ForEach(appState.user_tasks) { task in
                             createTaskEntry(task: task)
+                                .swipeActions(edge: .leading) {
+                                    Button(role: .destructive) {
+                                        completeTask(task: task)
+                                    } label: {
+                                        Label ("Complete", systemImage: "checkmark")
+                                    }.tint(.accent)
+                                }
                         }
                         .onDelete(perform: deleteTask)
+                        
                     }
                     .listStyle(.plain)
                 }
@@ -45,14 +49,14 @@ struct TaskListView: View {
     
     func createTaskEntry(task : Task) -> some View {
         HStack {
-            Image(systemName: task.icon)
-                .foregroundColor(.accent)
-                .font(.system(size: 25))
+            VStack (alignment: .leading, spacing: 0) {
+                Text("\(task.title)")
+                    .font(.system(size: 20))
+                    .lineLimit(2)
+                    .truncationMode(.tail)
+            }
             
-            Text("\(task.title)")
-                .font(.system(size: 25))
-                .lineLimit(1)
-                .truncationMode(.tail)
+            
             
             Spacer(minLength: 40)
             
@@ -60,26 +64,19 @@ struct TaskListView: View {
             Image(systemName: "star.fill")
                 .foregroundColor(.accent)
                 .padding(.top, -3)
-            Button(){
-                
-            } label: {
-                ZStack {
-                    Circle()
-                        .foregroundColor(.gray.opacity(0.2))
-                        .frame(width: 30, height: 30)
-                    Image(systemName: "arrow.right")
-                        .font(.system(size: 15))
-                    
-                }
-            }
         }
     }
     
     func deleteTask(at offsets: IndexSet) {
         tasks.remove(atOffsets: offsets)
     }
+    
+    func completeTask(task: Task) {
+        
+    }
 }
 
 #Preview {
     TaskListView()
+        .environmentObject(AppState(load_mock_data: true))
 }

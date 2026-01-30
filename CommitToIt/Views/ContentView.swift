@@ -7,26 +7,9 @@
 
 import SwiftUI
 
-struct Task: Identifiable, Codable {
-    let id: UUID
-    var title: String
-    var point_value: Int
-    var icon: String
-    var completed_at: Date?
-}
-
-struct Reward: Identifiable, Codable {
-    let id: UUID
-    var title: String
-    var description: String
-    var cost: Int
-    var icon: String
-    var redeemed_at: Date?
-}
-
-
-
 struct ContentView: View {
+    @EnvironmentObject var appState: AppState
+    
     var body: some View {
         MainTabView()
     }
@@ -34,4 +17,5 @@ struct ContentView: View {
 
 #Preview {
     ContentView()
+        .environmentObject(AppState(load_mock_data: true))
 }

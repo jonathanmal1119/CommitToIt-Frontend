@@ -1,11 +1,13 @@
 import SwiftUI
 
 struct TaskStatsView: View {
+    @EnvironmentObject var appState: AppState
+    
     var body: some View {
         HStack {
             VStack(alignment: .leading, spacing: 0) {
                 HStack(spacing: 6) {
-                    Text("000")
+                    Text("\(appState.user_stats.completed_tasks)")
                         .font(Font.largeTitle.bold())
                         
                     Image(systemName: "bookmark.fill")
@@ -21,7 +23,7 @@ struct TaskStatsView: View {
             
             VStack(alignment: .leading, spacing: 0) {
                 HStack(spacing: 6) {
-                    Text("000")
+                    Text("\(appState.user_stats.completed_projects)")
                         .font(Font.largeTitle.bold())
                     Image(systemName: "folder.fill")
                         .foregroundColor(.accent)
@@ -36,7 +38,7 @@ struct TaskStatsView: View {
             
             VStack(alignment: .leading, spacing: 0) {
                 HStack(spacing: 6) {
-                    Text("000")
+                    Text("\(appState.user_stats.total_points_earned)")
                         .font(Font.largeTitle.bold())
                         
                     Image(systemName: "star.fill")
@@ -52,6 +54,7 @@ struct TaskStatsView: View {
 
 #Preview {
     TaskStatsView()
+        .environmentObject(AppState(load_mock_data: true))
 }
 
 

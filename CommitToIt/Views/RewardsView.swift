@@ -1,9 +1,9 @@
 import SwiftUI
 
 struct RewardsView: View {
-    @EnvironmentObject var dataManager: DataManager
     @EnvironmentObject var appState: AppState
 
+    // Switch to global isLoading
     @State private var isLoading = false
     @State private var errorMessage: String?
 
@@ -17,8 +17,7 @@ struct RewardsView: View {
             Color.primary.opacity(0.3)
                 .frame(height: 2)
 
-            ProgressBarView(value: 10, total: 100)
-                .padding(10)
+            ProgressBarView()
 
             Color.primary.opacity(0.3)
                 .frame(height: 2)
@@ -33,7 +32,7 @@ struct RewardsView: View {
             } else {
                 ScrollView {
                     VStack(spacing: 16) {
-                        ForEach(dataManager.rewards) { reward in
+                        ForEach(appState.redeemable_rewards) { reward in
                             rewardCard(reward: reward)
                         }
                     }
@@ -44,21 +43,9 @@ struct RewardsView: View {
             Spacer()
         }
         .padding()
-//        .onAppear {
-//            fetchRewards()
-//        }
-        .onReceive(dataManager.$rewards) { _ in
-            isLoading = false
-        }
-        .onReceive(dataManager.$rewardsError) { error in
-            if let error = error {
-                errorMessage = error
-                isLoading = false
-            }
-        }
     }
 
-    // MARK: - Reward Card
+    // Reward Card
     func rewardCard(reward: Reward) -> some View {
         HStack {
             VStack {
@@ -85,6 +72,7 @@ struct RewardsView: View {
 
             Button {
                 // TODO: Redemption functionality
+                appState.add(points: 1)
             } label: {
                 HStack {
                     Text("\(reward.cost)")
@@ -103,67 +91,9 @@ struct RewardsView: View {
     func invertTheme() -> Color {
         colorScheme == .dark ? .white : .black
     }
-
-    private func fetchRewards() {
-        isLoading = true
-        errorMessage = nil
-        
-        guard let url = URL(string: "http://127.0.0.1:3001/api/reward/") else {
-            self.errorMessage = "Invalid rewards URL"
-            self.isLoading = false
-            return
-        }
-        
-        URLSession.shared.dataTask(with: url) { data, response, error in
-            if let error = error {
-                DispatchQueue.main.async {
-                    self.errorMessage = error.localizedDescription
-                    self.isLoading = false
-                }
-                return
-            }
-            
-            if let http = response as? HTTPURLResponse,
-               !(200...299).contains(http.statusCode) {
-                DispatchQueue.main.async {
-                    self.errorMessage = "Server error (\(http.statusCode))"
-                    self.isLoading = false
-                }
-                return
-            }
-            
-            guard let data = data else {
-                DispatchQueue.main.async {
-                    self.errorMessage = "No data received"
-                    self.isLoading = false
-                }
-                return
-            }
-            
-            do {
-                let rewards = try JSONDecoder().decode([Reward].self, from: data)
-                DispatchQueue.main.async {
-                    self.dataManager.rewards = rewards
-                    self.isLoading = false
-                }
-            } catch {
-                DispatchQueue.main.async {
-                    self.errorMessage = "Failed to parse rewards"
-                    self.isLoading = false
-                }
-            }
-        }
-        .resume()
-    }
 }
 
 #Preview {
-    let dm = DataManager()
-    let ap = AppState()
-    dm.rewards = [
-        Reward(id: UUID(), title: "Preview Reward", description: "Preview only", cost: 50, icon: "gift.fill")
-    ]
-    return RewardsView()
-        .environmentObject(dm)
-        .environmentObject(ap)
+    RewardsView()
+        .environmentObject(AppState(load_mock_data: true))
 }
