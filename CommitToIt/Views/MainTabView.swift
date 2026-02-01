@@ -7,22 +7,14 @@
 
 import SwiftUI
 
-enum Tabs {
-    case home
-    case tasks
-    case rewards
-    case history
-    case transition
-}
-
-
 struct MainTabView: View {
-    @State private var selectedTab: Tabs = .home
+    //@State private var selectedTab: Tabs = .home
+    @EnvironmentObject var appState: AppState
     
     var body: some View {
         ZStack (alignment: .bottom) {
             Group {
-                switch selectedTab {
+                switch appState.selectedTab {
                     case .home:
                         HomePageView()
                     case .tasks:
@@ -31,7 +23,7 @@ struct MainTabView: View {
                         RewardsView()
                     case .history:
                         EmptyView()
-                    case .transition:
+                    case .profile:
                         HistoryView()
                 }
                 
@@ -40,22 +32,23 @@ struct MainTabView: View {
             
             
             HStack {
-                BottomNavBar(selectedTab: $selectedTab)
+                BottomNavBar()
             }
         }
-        .animation(.easeIn(duration: 0), value: selectedTab)
+        .animation(.easeIn(duration: 0), value: appState.selectedTab)
     }
 }
 
 struct BottomNavBar: View {
-    @Binding var selectedTab: Tabs
+    @EnvironmentObject var appState: AppState
     
     var body: some View {
-        HStack (spacing:50) {
+        HStack (spacing:45) {
             navButton(icon: "house.fill", tab: .home)
             navButton(icon: "list.clipboard.fill", tab: .tasks)
             navButton(icon: "giftcard.fill", tab: .rewards)
-            navButton(icon: "clock.arrow.circlepath", tab: .transition)
+            navButton(icon: "clock.arrow.circlepath", tab: .history)
+            navButton(icon: "person.fill", tab: .profile)
         }
         .padding(.horizontal, 28)
         .padding(.vertical, 14)
@@ -71,13 +64,13 @@ struct BottomNavBar: View {
     private func navButton(icon: String, tab: Tabs) -> some View {
         Button {
             withAnimation(.spring(dampingFraction: 0.7)) {
-                selectedTab = tab
+                appState.selectedTab = tab
             }
         } label: {
             Image(systemName: icon)
                 .font(.system(size: 20, weight: .semibold))
-                .foregroundColor(selectedTab == tab ? .accent : .gray)
-                .scaleEffect(selectedTab == tab ? 1.3 : 1.0)
+                .foregroundColor(appState.selectedTab == tab ? .accent : .gray)
+                .scaleEffect(appState.selectedTab == tab ? 1.3 : 1.0)
         }
         .buttonStyle(.plain)
     }

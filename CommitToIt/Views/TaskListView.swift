@@ -55,9 +55,7 @@ struct TaskListView: View {
                     .lineLimit(2)
                     .truncationMode(.tail)
             }
-            
-            
-            
+    
             Spacer(minLength: 40)
             
             Text("+\(task.point_value)")

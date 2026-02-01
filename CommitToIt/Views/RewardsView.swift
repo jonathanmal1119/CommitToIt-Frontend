@@ -11,15 +11,31 @@ struct RewardsView: View {
 
     var body: some View {
         VStack {
-            Text("Redeem Points")
-                .font(.title.bold())
+            ZStack {
+                Text("Redeem Points")
+                    .font(.largeTitle.bold())
+                    .frame(maxWidth: .infinity)
+                    .multilineTextAlignment(.center)
+                
+                Button {
+                    
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.system(size: 30).bold())
+                }
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                    .padding(.trailing, 0)
+                    .foregroundColor(.accent)
+                
+            }
+            .padding(.bottom, 1)
 
-            Color.primary.opacity(0.3)
+            Color.primary.opacity(0.1)
                 .frame(height: 2)
 
             ProgressBarView()
 
-            Color.primary.opacity(0.3)
+            Color.primary.opacity(0.1)
                 .frame(height: 2)
 
             if isLoading {
@@ -31,7 +47,7 @@ struct RewardsView: View {
                     .frame(maxHeight: 500)
             } else {
                 ScrollView {
-                    VStack(spacing: 16) {
+                    VStack(spacing: 5) {
                         ForEach(appState.redeemable_rewards) { reward in
                             rewardCard(reward: reward)
                         }
@@ -57,10 +73,12 @@ struct RewardsView: View {
             .cornerRadius(10)
 
             VStack(alignment: .leading) {
+                
                 Text(reward.title)
                     .font(.headline)
                     .lineLimit(1)
                     .truncationMode(.tail)
+                
                 Text(reward.description)
                     .font(.footnote)
                     .lineLimit(1)

@@ -10,6 +10,9 @@ import Combine
 
 @MainActor
 final class AppState: ObservableObject {
+    // MARK: - Current App Tab
+    @Published var selectedTab: Tabs = .home
+    
     // MARK: - API INFO
     @Published var baseURL: String = "http://api.committoit.click/api"
     
@@ -19,13 +22,13 @@ final class AppState: ObservableObject {
     // MARK: - Core User Data
     @Published private(set) var user_tasks: [Task] = []
     @Published private(set) var user_rewards: [Reward] = []
-    @Published private(set) var user_projects: [Project] = []
     
     // MARK: - Progress
     @Published private(set) var points: Int = 0
 
     // MARK: - Stats
     @Published private(set) var user_stats: UserStats
+    @Published private(set) var user_id: UserID
 
     // MARK: - UI State
     @Published var isLoading: Bool = false
@@ -41,6 +44,11 @@ final class AppState: ObservableObject {
         //guard load_mock_data else { return nil }
         
         self.redeemable_rewards = [
+            Reward(id: 1, title: "Test Reward", description: "Mock Data", cost: 100, icon: "mug.fill"),
+            Reward(id: 1, title: "Test Reward", description: "Mock Data", cost: 100, icon: "mug.fill"),
+            Reward(id: 1, title: "Test Reward", description: "Mock Data", cost: 100, icon: "mug.fill"),
+            Reward(id: 1, title: "Test Reward", description: "Mock Data", cost: 100, icon: "mug.fill"),
+            Reward(id: 1, title: "Test Reward", description: "Mock Data", cost: 100, icon: "mug.fill"),
             Reward(id: 1, title: "Test Reward", description: "Mock Data", cost: 100, icon: "mug.fill")
         ]
         
@@ -52,22 +60,12 @@ final class AppState: ObservableObject {
             Task(id: 4, title: "Preview", point_value: 100, icon: "mug.fill", project_id: nil, project_name: nil)
         ]
         
-        self.user_projects = [
-            Project(id: 1, title: "Meal Prep", icon: "dial"),
-            Project(id: 2, title: "Project 21", icon: "die.face.5.fill"),
-            Project(id: 3, title: "Project 1", icon: "die.face.5.fill"),
-            Project(id: 4, title: "Project 2", icon: "die.face.5.fill"),
-            Project(id: 5, title: "Project 21", icon: "die.face.5.fill"),
-            Project(id: 6, title: "Project 21", icon: "die.face.5.fill"),
-            Project(id: 7, title: "Project 21", icon: "die.face.5.fill"),
-            Project(id: 8, title: "Project 21", icon: "die.face.5.fill"),
-            Project(id: 9, title: "Project 21", icon: "die.face.5.fill"),
-            Project(id: 10, title: "Project 21", icon: "die.face.5.fill"),
-            Project(id: 11, title: "Project 21", icon: "die.face.5.fill"),
-            Project(id: 12, title: "Project 21", icon: "die.face.5.fill"),
+        self.user_rewards = [
+            Reward(id: 1, title: "Free Starbucks Drink", description: "1 Free drink of your choice", cost: 100, icon: "mug.fill", earned_at: Calendar.current.date(byAdding: .day, value: -1, to: Date()), redeemed_at: Calendar.current.date(byAdding: .day, value: -1, to: Date())),
+            Reward(id: 1, title: "Free Starbucks Drink", description: "1 Free drink of your choice", cost: 100, icon: "mug.fill", earned_at: Calendar.current.date(byAdding: .day, value: -1, to: Date()), redeemed_at: Calendar.current.date(byAdding: .day, value: -1, to: Date())),
+            Reward(id: 1, title: "Free Starbucks Drink", description: "1 Free drink of your choice", cost: 100, icon: "mug.fill", earned_at: Calendar.current.date(byAdding: .day, value: -1, to: Date()), redeemed_at: Calendar.current.date(byAdding: .day, value: -1, to: Date())),
+            
         ]
-        
-        self.user_rewards = []
         
         self.points = 0
         
@@ -78,6 +76,11 @@ final class AppState: ObservableObject {
             completed_projects: 10,
         )
         
+        self.user_id = .init(
+            first_name: "Jonathan",
+            last_name: "Malave",
+        )
+        
     }
     
     static var mock: AppState {
@@ -86,6 +89,10 @@ final class AppState: ObservableObject {
     
     func add(points: Int) {
         self.points += points
+    }
+    
+    func remove(points: Int) {
+        self.points = max(self.points - points, 0)
     }
     
 }

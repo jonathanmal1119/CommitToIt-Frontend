@@ -32,7 +32,7 @@ struct TaskTabView: View {
                         .foregroundColor(.accent)
                     
                 }
-                .padding(.bottom, 10)
+                .padding(.bottom, 1)
                 
                 Color.primary.opacity(0.1)
                     .frame(height: 2)
@@ -77,6 +77,7 @@ struct addOverlay: View {
                         Image(systemName: "xmark")
                             .font(.system(size: 25).bold())
                             .foregroundColor(.red)
+
                     }
                     .frame(maxWidth: .infinity, alignment: .trailing)
                     .padding(EdgeInsets(.init(top: 20, leading: 0, bottom: 0, trailing: 20)))

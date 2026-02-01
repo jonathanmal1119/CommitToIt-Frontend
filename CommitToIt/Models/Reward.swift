@@ -12,5 +12,6 @@ struct Reward: Identifiable, Codable, Equatable {
     var description: String
     var cost: Int
     var icon: String
+    var earned_at: Date?
     var redeemed_at: Date?
 }

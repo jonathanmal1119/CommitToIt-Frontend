@@ -21,19 +21,35 @@ struct HomePageView: View {
             )
             .ignoresSafeArea()
             
-            VStack{
-                HStack {
-                    Button() {
-                        
-                    } label: {
-                        Image(systemName: "gearshape.fill")
-                            .foregroundStyle(.background)
-                            .font(.largeTitle.bold())
-                    }
+            VStack (spacing: 20){
+                
+                
+                
+                ZStack {
+//                    Image(systemName: "checklist")
+//                        .foregroundStyle(.background)
+//                        .font(.title.bold())
+//                        .frame(maxWidth: .infinity, alignment: .leading)
+                    
+                    Text("Commit To It")
+                        .font(.system(size: 40)).bold()
+                        .foregroundStyle(.background)
+                        .frame(maxWidth: .infinity, alignment: .center)
+                    
+//                    Button() {
+//                        
+//                    } label: {
+//                        Image(systemName: "gearshape.fill")
+//                            .foregroundStyle(.primary)
+//                            .font(.largeTitle.bold())
+//                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .init(horizontal: .trailing, vertical: .top))
+                .padding(10)
+                //.background(.background)
+                //.cornerRadius(15)
+                .shadow(radius: 10)
                 
-                Spacer(minLength: 200)
                 VStack {
                     ProgressBarView()
                 }
@@ -41,25 +57,74 @@ struct HomePageView: View {
                 .background(.background)
                 .cornerRadius(15)
                 .shadow(radius: 10)
-                
-                Spacer(minLength: 20)
-                
-                
-                
+
+                // MARK: Today's Tasks
                 VStack() {
-                    Text("Today's Tasks")
-                        .font(.title)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(8)
-                    Color.primary.opacity(0.3).frame(height: 1)
+                    HStack {
+                        Image(systemName: "bookmark.fill")
+                            .foregroundColor(.accent)
+                            .font(.system(size: 25))
+                    
+                        Text("Today's Tasks")
+                            .font(.title2.bold())
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        
+                        Button {
+                            appState.selectedTab = .rewards
+                        } label : {
+                            Image(systemName: "arrow.right")
+                                .foregroundColor(.accent)
+                                .font(.system(size: 20))
+                        }
+                        
+                    }
+                    .padding([.top,.leading,.trailing], 14)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    
+                    Color.primary.opacity(0.1).frame(height: 1)
+                    
                     TaskListView()
+                        .padding(.top, -8)
                 }
-                .padding(10)
+                //.padding(10)
                 .background(.background)
                 .cornerRadius(15)
                 .shadow(radius: 10)
                 
-                
+                // MARK: Available Rewards
+                VStack() {
+                    
+                    HStack {
+                        Image(systemName: "gift.fill")
+                            .foregroundColor(.accent)
+                            .font(.system(size: 25))
+                    
+                        Text("\(appState.user_rewards.count) Available Rewards")
+                            .font(.title2.bold())
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        
+                        Button {
+                            appState.selectedTab = .rewards
+                        } label : {
+                            Image(systemName: "arrow.right")
+                                .foregroundColor(.accent)
+                                .font(.system(size: 20))
+                        }
+                        
+                    }
+                    .padding([.top,.leading,.trailing], 14)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    
+                    Color.primary.opacity(0.1).frame(height: 1)
+                    
+                    RewardsListView(showAdvancedInfo: false)
+                        .padding(.top, -8)
+                }
+                //.padding(10)
+                .background(.background)
+                .cornerRadius(15)
+                .shadow(radius: 10)
+                .frame(maxHeight: 170)
             }
             .padding(20)
             .padding(.bottom, 60)
