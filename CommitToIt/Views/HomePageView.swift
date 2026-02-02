@@ -21,7 +21,7 @@ struct HomePageView: View {
             )
             .ignoresSafeArea()
             
-            VStack (spacing: 20){
+            VStack (spacing: 10){
                 
                 
                 
@@ -70,7 +70,7 @@ struct HomePageView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                         
                         Button {
-                            appState.selectedTab = .rewards
+                            appState.selectedTab = .tasks
                         } label : {
                             Image(systemName: "arrow.right")
                                 .foregroundColor(.accent)
@@ -83,7 +83,7 @@ struct HomePageView: View {
                     
                     Color.primary.opacity(0.1).frame(height: 1)
                     
-                    TaskListView()
+                    TaskListView(show_create_new_task: .constant(false))
                         .padding(.top, -8)
                 }
                 //.padding(10)
@@ -91,43 +91,47 @@ struct HomePageView: View {
                 .cornerRadius(15)
                 .shadow(radius: 10)
                 
+                
+                
                 // MARK: Available Rewards
-                VStack() {
-                    
-                    HStack {
-                        Image(systemName: "gift.fill")
-                            .foregroundColor(.accent)
-                            .font(.system(size: 25))
-                    
-                        Text("\(appState.user_rewards.count) Available Rewards")
-                            .font(.title2.bold())
-                            .frame(maxWidth: .infinity, alignment: .leading)
+                if appState.user_rewards.count > 0 {
+                    VStack() {
                         
-                        Button {
-                            appState.selectedTab = .rewards
-                        } label : {
-                            Image(systemName: "arrow.right")
+                        HStack {
+                            Image(systemName: "gift.fill")
                                 .foregroundColor(.accent)
-                                .font(.system(size: 20))
-                        }
+                                .font(.system(size: 25))
                         
+                            Text("\(appState.user_rewards.count) Available Rewards")
+                                .font(.title2.bold())
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                            
+                            Button {
+                                appState.selectedTab = .rewards
+                            } label : {
+                                Image(systemName: "arrow.right")
+                                    .foregroundColor(.accent)
+                                    .font(.system(size: 20))
+                            }
+                            
+                        }
+                        .padding([.top,.leading,.trailing], 14)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        
+                        Color.primary.opacity(0.1).frame(height: 1)
+                        
+                        RewardsListView(showAdvancedInfo: false)
+                            .padding(.top, -8)
                     }
-                    .padding([.top,.leading,.trailing], 14)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    
-                    Color.primary.opacity(0.1).frame(height: 1)
-                    
-                    RewardsListView(showAdvancedInfo: false)
-                        .padding(.top, -8)
+                    //.padding(10)
+                    .background(.background)
+                    .cornerRadius(15)
+                    .shadow(radius: 10)
+                    .frame(maxHeight: 170)
                 }
-                //.padding(10)
-                .background(.background)
-                .cornerRadius(15)
-                .shadow(radius: 10)
-                .frame(maxHeight: 170)
             }
             .padding(20)
-            .padding(.bottom, 60)
+            .padding(.bottom, 50)
                 
         }
     }

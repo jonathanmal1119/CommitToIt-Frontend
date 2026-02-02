@@ -7,7 +7,7 @@
 import Foundation
 
 struct Reward: Identifiable, Codable, Equatable {
-    let id: Int
+    var id: Int
     var title: String
     var description: String
     var cost: Int
@@ -15,3 +15,4 @@ struct Reward: Identifiable, Codable, Equatable {
     var earned_at: Date?
     var redeemed_at: Date?
 }
+

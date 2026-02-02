@@ -10,6 +10,7 @@ import Foundation
 struct Task: Identifiable, Codable, Equatable {
     var id: Int
     var title: String
+    var description: String
     var point_value: Int
     var icon: String
     var completed_at: Date?

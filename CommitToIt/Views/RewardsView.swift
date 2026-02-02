@@ -17,15 +17,15 @@ struct RewardsView: View {
                     .frame(maxWidth: .infinity)
                     .multilineTextAlignment(.center)
                 
-                Button {
-                    
-                } label: {
-                    Image(systemName: "plus")
-                        .font(.system(size: 30).bold())
-                }
-                .frame(maxWidth: .infinity, alignment: .trailing)
-                    .padding(.trailing, 0)
-                    .foregroundColor(.accent)
+//                Button {
+//                    
+//                } label: {
+//                    Image(systemName: "plus")
+//                        .font(.system(size: 30).bold())
+//                }
+//                .frame(maxWidth: .infinity, alignment: .trailing)
+//                    .padding(.trailing, 0)
+//                    .foregroundColor(.accent)
                 
             }
             .padding(.bottom, 1)

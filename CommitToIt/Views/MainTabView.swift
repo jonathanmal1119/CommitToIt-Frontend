@@ -43,12 +43,13 @@ struct BottomNavBar: View {
     @EnvironmentObject var appState: AppState
     
     var body: some View {
-        HStack (spacing:45) {
-            navButton(icon: "house.fill", tab: .home)
+        HStack (spacing:40) {
             navButton(icon: "list.clipboard.fill", tab: .tasks)
-            navButton(icon: "giftcard.fill", tab: .rewards)
-            navButton(icon: "clock.arrow.circlepath", tab: .history)
-            navButton(icon: "person.fill", tab: .profile)
+            navButton(icon: "house.fill", tab: .home)
+            navButton(icon: "gift.fill", tab: .rewards)
+            
+            //navButton(icon: "clock.arrow.circlepath", tab: .history)
+            //navButton(icon: "person.fill", tab: .profile)
         }
         .padding(.horizontal, 28)
         .padding(.vertical, 14)
@@ -68,7 +69,7 @@ struct BottomNavBar: View {
             }
         } label: {
             Image(systemName: icon)
-                .font(.system(size: 20, weight: .semibold))
+                .font(.system(size: tab == .home ? 27 : 20, weight: .semibold))
                 .foregroundColor(appState.selectedTab == tab ? .accent : .gray)
                 .scaleEffect(appState.selectedTab == tab ? 1.3 : 1.0)
         }

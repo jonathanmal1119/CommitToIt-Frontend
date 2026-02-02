@@ -43,12 +43,12 @@ struct TaskTabView: View {
                 Color.primary.opacity(0.1)
                     .frame(height: 2)
                 
-                TaskListView()
+                TaskListView(show_create_new_task: $showingAddMenu)
             }
             
-            if showingAddMenu {
-                addOverlay(showBool: $showingAddMenu)
-            }
+//            if showingAddMenu {
+//                addOverlay(showBool: $showingAddMenu)
+//            }
         }
     }
 }
