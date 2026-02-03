@@ -23,12 +23,12 @@ struct Reward: Identifiable, Codable, Equatable {
     
     enum CodingKeys: String, CodingKey {
         case id = "reward_id"
-        case title
-        case description
-        case cost
-        case icon
-        case earned_at
-        case redeemed_at
+        case title = "title"
+        case description = "description"
+        case cost = "cost"
+        case icon = "icon"
+        case earned_at = "earned_at"
+        case redeemed_at = "redeemed_at"
     }
 }
 

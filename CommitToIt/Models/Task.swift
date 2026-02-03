@@ -29,11 +29,11 @@ struct TaskItem: Codable, Identifiable {
     
     enum CodingKeys: String, CodingKey {
         case id = "task_id"
-        case title
-        case description
-        case point_value
-        case completed_at
-        case filter
+        case title = "title"
+        case description = "description"
+        case point_value = "point_value"
+        case completed_at = "completed_at"
+        case filter = "filter"
     }
 }
 

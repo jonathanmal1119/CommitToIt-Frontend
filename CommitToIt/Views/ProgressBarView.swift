@@ -8,7 +8,7 @@ struct ProgressBarView: View {
 
     var progress: Double {
         guard total > 0 else { return 0 }
-        return min(max(Double(appState.points) / Double(total), 0), 1)
+        return min(max(Double(appState.user_stats.point_balance) / Double(total), 0), 1)
     }
     
     func circleColor(for stepProgress: Double, currentProgress: Double) -> Color {
@@ -18,7 +18,7 @@ struct ProgressBarView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 6) {
-                Text("\(appState.points)")
+                Text("\(appState.user_stats.point_balance)")
                     .font(Font.largeTitle.bold())
                     .padding(.leading, 8)
                 Image(systemName: "star.fill").foregroundColor(.accent)
@@ -48,7 +48,7 @@ struct ProgressBarView: View {
                                 width: geometry.size.width * CGFloat(progress),
                                 height: 10
                             )
-                            .animation(.spring(), value: appState.points)
+                            .animation(.spring(), value: appState.user_stats.point_balance)
                         
                     }
                     
@@ -56,7 +56,7 @@ struct ProgressBarView: View {
                     VStack {
                         circleColor(for: 0.25, currentProgress: progress)
                             .frame(width:5 ,height: 18)
-                            .animation(.spring(), value: appState.points)
+                            .animation(.spring(), value: appState.user_stats.point_balance)
                         
                         Text("25")
                             .font(.headline)
@@ -68,7 +68,7 @@ struct ProgressBarView: View {
                     VStack {
                         circleColor(for: 0.5, currentProgress: progress)
                             .frame(width:5 ,height: 18)
-                            .animation(.spring(), value: appState.points)
+                            .animation(.spring(), value: appState.user_stats.point_balance)
                         
                         Text("50")
                             .font(.headline)
@@ -81,7 +81,7 @@ struct ProgressBarView: View {
                     VStack {
                         circleColor(for: 0.75, currentProgress: progress)
                             .frame(width:5 ,height: 18)
-                            .animation(.spring(), value: appState.points)
+                            .animation(.spring(), value: appState.user_stats.point_balance)
                         
                         Text("75")
                             .font(.headline)
@@ -91,6 +91,22 @@ struct ProgressBarView: View {
                 }
                 .frame(height: 18)
                 .padding(.bottom, 25)
+            }
+        }
+        .task {
+            syncProgressBar()
+        }
+    }
+    
+    func syncProgressBar() {
+
+        Task {
+            do {
+                let response = try await RewardService.fetchAvailableRewards()
+
+                appState.setRedeemableRewards(response)
+            } catch {
+                print("[ProgressBar] \(error.localizedDescription)")
             }
         }
     }

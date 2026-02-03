@@ -61,7 +61,6 @@ struct RewardsListView: View {
 
                 Button {
                     // TODO: Send Notif to me
-                    appState.remove(points: 1)
                 } label: {
                     HStack {
                         Text("Redeem")

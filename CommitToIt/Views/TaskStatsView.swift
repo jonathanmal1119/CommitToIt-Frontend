@@ -23,12 +23,12 @@ struct TaskStatsView: View {
             
             VStack(alignment: .leading, spacing: 0) {
                 HStack(spacing: 6) {
-                    Text("\(appState.user_stats.completed_projects)")
+                    Text("\(appState.user_stats.redeemed_rewards)")
                         .font(Font.largeTitle.bold())
-                    Image(systemName: "folder.fill")
+                    Image(systemName: "gift.fill")
                         .foregroundColor(.accent)
                 }
-                Text("Projects Finished")
+                Text("Rewards Earned")
                     .font(.footnote)
             }
             .padding(8)

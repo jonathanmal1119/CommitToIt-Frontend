@@ -20,9 +20,6 @@ final class AppState: ObservableObject {
     // MARK: - Core User Data
     @Published private(set) var user_tasks: [TaskItem] = []
     @Published private(set) var user_rewards: [Reward] = []
-    
-    // MARK: - Progress
-    @Published private(set) var points: Int = 0
 
     // MARK: - Stats
     @Published private(set) var user_stats: UserStats
@@ -58,32 +55,32 @@ final class AppState: ObservableObject {
             
         ]
         
-        self.points = 0
-        
         self.user_stats = .init(
+            point_balance: 100,
             completed_tasks: 0,
             redeemed_rewards: 1,
             total_points_earned: 100,
-            completed_projects: 10,
         )
         
         self.user_id = 2
     }
     
     static var mock: AppState {
-        AppState(load_mock_data: true)
+        AppState(load_mock_data: false)
     }
     
-    func add(points: Int) {
-        self.points += points
-    }
-    
-    func remove(points: Int) {
-        self.points = max(self.points - points, 0)
-    }
+    // Sync Functions
     
     func setRedeemableRewards(_ rewards: [Reward]) {
         self.redeemable_rewards = rewards
+    }
+    
+    func setUserTasks(_ tasks: [TaskItem]) {
+        self.user_tasks = tasks
+    }
+    
+    func setUserStats(_ userStats: UserStats) {
+        self.user_stats = userStats
     }
     
 }
