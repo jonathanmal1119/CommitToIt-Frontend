@@ -11,13 +11,13 @@ struct TaskListView: View {
     @EnvironmentObject var appState: AppState
     
     // TODO: Switch to global isloading
-    @State var tasks : [Task] = []
+    @State var tasks : [TaskItem] = []
     @State private var isLoading = false
     @State private var errorMessage: String?
     
     @Binding var show_create_new_task: Bool
     @State var show_task_info: Bool = false
-    @State var shown_task: Task? = nil
+    @State var shown_task: TaskItem? = nil
     
     @State private var new_task_name : String = ""
     @State private var new_task_point_amt : Int = 0
@@ -69,7 +69,7 @@ struct TaskListView: View {
         }
     }
     
-    func createTaskEntry(task : Task) -> some View {
+    func createTaskEntry(task : TaskItem) -> some View {
         HStack {
             VStack (alignment: .leading, spacing: 0) {
                 Text("\(task.title)")
@@ -174,7 +174,7 @@ struct TaskListView: View {
         tasks.remove(atOffsets: offsets)
     }
     
-    func completeTask(task: Task) {
+    func completeTask(task: TaskItem) {
         
     }
     
@@ -183,7 +183,7 @@ struct TaskListView: View {
 struct showTaskInfoSheet: View {
     @Environment(\.dismiss) private var dismiss
     
-    @State var task: Task
+    @State var task: TaskItem
     
     @State var isEditing: Bool = true
     
@@ -246,7 +246,7 @@ struct showTaskInfoSheet: View {
                         
                         Divider()
                         
-                        Text("\(task.description)")
+                        Text("\(task.description ?? "")")
                             .font(.title2)
                             .padding(.top, 9)
                     }
@@ -269,7 +269,7 @@ struct showTaskInfoSheet: View {
                         Button {
                             isEditing = true
                             edited_task_name = task.title
-                            edited_task_desc = task.description
+                            edited_task_desc = task.description ?? ""
                         } label: {
                             Image(systemName: "pencil")
                         }

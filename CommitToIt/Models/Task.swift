@@ -1,19 +1,40 @@
 //
-//  Task.swift
-//  CommitToIt
+//  TaskItem.swift
+//  APiTester
 //
-//  Created by Jonathan Malave on 1/29/26.
+//  Created by Jonathan Malave on 2/2/26.
 //
 
 import Foundation
 
-struct Task: Identifiable, Codable, Equatable {
-    var id: Int
-    var title: String
-    var description: String
-    var point_value: Int
-    var icon: String
-    var completed_at: Date?
-    var project_id: Int?
-    var project_name: String?
+struct TaskResponse: Decodable {
+    let status: String
+    let message: String
+    let data: TaskData
 }
+
+struct TaskData: Decodable {
+    let inQueueTasks: [TaskItem]
+    let pendingTasks: [TaskItem]
+    let completedTasks: [TaskItem]
+}
+
+struct TaskItem: Codable, Identifiable {
+    let id: Int
+    let title: String
+    let description: String?
+    let point_value: Int
+    let completed_at: Date?
+    let filter: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case id = "task_id"
+        case title
+        case description
+        case point_value
+        case completed_at
+        case filter
+    }
+}
+
+

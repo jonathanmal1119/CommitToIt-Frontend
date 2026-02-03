@@ -8,6 +8,5 @@
 import Foundation
 
 struct UserID : Codable, Equatable {
-    var first_name : String
-    var last_name : String
+    var user_db_ID: Int
 }

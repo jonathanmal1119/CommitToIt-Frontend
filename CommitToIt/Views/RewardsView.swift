@@ -89,8 +89,7 @@ struct RewardsView: View {
             Spacer()
 
             Button {
-                // TODO: Redemption functionality
-                appState.add(points: 1)
+                fetchAvailableRewards()
             } label: {
                 HStack {
                     Text("\(reward.cost)")
@@ -102,12 +101,30 @@ struct RewardsView: View {
                 .background(.accent.opacity(0.4))
                 .cornerRadius(10)
             }
+            
         }
         .padding(10)
     }
 
     func invertTheme() -> Color {
         colorScheme == .dark ? .white : .black
+    }
+    
+    func fetchAvailableRewards() {
+        isLoading = true
+        errorMessage = nil
+
+        Task {
+            do {
+                let response = try await RewardService.fetchAvailableRewards()
+
+                appState.setRedeemableRewards(response)
+            } catch {
+                errorMessage = error.localizedDescription
+            }
+
+            isLoading = false
+        }
     }
 }
 

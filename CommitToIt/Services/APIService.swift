@@ -1,82 +1,53 @@
 //
-//  APIService.swift
-//  CommitToIt
+//  APIClient.swift
+//  APiTester
 //
-//  Created by Jonathan Malave on 2/1/26.
+//  Created by Jonathan Malave on 2/2/26.
 //
 
 import Foundation
 
-enum APIError: Error, LocalizedError {
+enum APIError: Error {
+    case invalidURL
     case invalidResponse
     case httpStatus(Int)
-    case decodingFailed(underlying: Error)
-
-    var errorDescription: String? {
-        switch self {
-        case .invalidResponse:
-            return "Invalid response."
-        case .httpStatus(let code):
-            return "Server returned error: \(code)"
-        case .decodingFailed(let underlying):
-            return "Failed to decode JSON: \(underlying.localizedDescription)"
-        }
-    }
 }
 
-struct APIService {
+final class APIClient {
     
-    // MARK: API vars
-    private var baseURL: String = "http://api.committoit.click/api"
-    
-    
-    private let decoder: JSONDecoder = {
-        let decoder = JSONDecoder()
-        decoder.dateDecodingStrategy = .iso8601
-        return decoder
-    }()
-    
-    private let encoder: JSONEncoder = {
-        let encoder = JSONEncoder()
-        encoder.dateEncodingStrategy = .iso8601
-        return encoder
-    }()
-    
-    private func request<T: Decodable>(
-        path: String,
+    private static let baseURL: String = "https://api.committoit.click/api"
+
+    static func request(
+        urlString: String,
         method: String = "GET",
-        body: Data? = nil,
-        token: String? = nil
-    )
-    async throws -> T {
+        headers: [String: String] = [:],
+        body: Data? = nil
+    ) async throws -> Data {
         
-        guard let url = URL(string: baseURL + path) else {
-            throw URLError(.badServerResponse)
+
+        guard let url = URL(string: baseURL + urlString) else {
+            throw APIError.invalidURL
         }
-        
+
         var request = URLRequest(url: url)
         request.httpMethod = method
         request.httpBody = body
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        
-        if let token {
-            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+
+        headers.forEach {
+            request.setValue($0.value, forHTTPHeaderField: $0.key)
         }
-        
+
         let (data, response) = try await URLSession.shared.data(for: request)
-        
-        guard let http = response as? HTTPURLResponse else {
+
+        guard let httpResponse = response as? HTTPURLResponse else {
             throw APIError.invalidResponse
         }
-        
-        guard (200..<300).contains(http.statusCode) else {
-            throw APIError.httpStatus(http.statusCode)
+
+        guard (200...299).contains(httpResponse.statusCode) else {
+            throw APIError.httpStatus(httpResponse.statusCode)
         }
+
         
-        do {
-            return try decoder.decode(T.self, from: data)
-        } catch {
-            throw APIError.decodingFailed(underlying: error)
-        }
+        return data
     }
 }

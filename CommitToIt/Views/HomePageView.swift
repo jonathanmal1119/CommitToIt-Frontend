@@ -22,19 +22,17 @@ struct HomePageView: View {
             .ignoresSafeArea()
             
             VStack (spacing: 10){
-                
-                
-                
                 ZStack {
 //                    Image(systemName: "checklist")
-//                        .foregroundStyle(.background)
+//                        .foregroundStyle(.primary)
 //                        .font(.title.bold())
 //                        .frame(maxWidth: .infinity, alignment: .leading)
-                    
+//                    
                     Text("Commit To It")
                         .font(.system(size: 40)).bold()
-                        .foregroundStyle(.background)
+                        .foregroundStyle(.primary)
                         .frame(maxWidth: .infinity, alignment: .center)
+                        
                     
 //                    Button() {
 //                        
@@ -46,8 +44,8 @@ struct HomePageView: View {
                 }
                 .frame(maxWidth: .infinity, alignment: .init(horizontal: .trailing, vertical: .top))
                 .padding(10)
-                //.background(.background)
-                //.cornerRadius(15)
+                .background(.background)
+                .cornerRadius(15)
                 .shadow(radius: 10)
                 
                 VStack {
@@ -137,7 +135,7 @@ struct HomePageView: View {
     }
 }
 
-struct  SettingsOverlay: View {
+struct SettingsOverlay: View {
     
     var body:  some View {
         ZStack {

@@ -10,6 +10,7 @@ import Combine
 
 @MainActor
 final class AppState: ObservableObject {
+    
     // MARK: - Current App Tab
     @Published var selectedTab: Tabs = .home
     
@@ -17,7 +18,7 @@ final class AppState: ObservableObject {
     @Published private(set) var redeemable_rewards: [Reward] = []
     
     // MARK: - Core User Data
-    @Published private(set) var user_tasks: [Task] = []
+    @Published private(set) var user_tasks: [TaskItem] = []
     @Published private(set) var user_rewards: [Reward] = []
     
     // MARK: - Progress
@@ -25,20 +26,13 @@ final class AppState: ObservableObject {
 
     // MARK: - Stats
     @Published private(set) var user_stats: UserStats
-    @Published private(set) var user_id: UserID
+    @Published private(set) var user_id: Int = -1
 
     // MARK: - UI State
     @Published var isLoading: Bool = false
     @Published var errorMessage: String?
-
-    // MARK: - Dependencies
-    //private let taskRepository = TaskRepository()
-    //private let rewardRepository = RewardRepository()
-    //private let statsRepository = StatsRepository()
     
     init(load_mock_data: Bool) {
-
-        //guard load_mock_data else { return nil }
         
         self.redeemable_rewards = [
             Reward(id: 1, title: "Test Reward", description: "Mock Data", cost: 100, icon: "mug.fill"),
@@ -49,11 +43,12 @@ final class AppState: ObservableObject {
         ]
         
         self.user_tasks = [
-            Task(id: 0, title: "Add User Logins", description: "Preview description buddy",point_value: 100, icon: "mug.fill", project_id: 1, project_name: "Meal Prep"),
-            Task(id: 1, title: "Preview", description: "Preview description buddy", point_value: 100, icon: "mug.fill", project_id: 2, project_name: "Project 21"),
-            Task(id: 2, title: "Preview", description: "Preview description buddy",point_value: 100, icon: "mug.fill", project_id: nil, project_name: nil),
-            Task(id: 3, title: "Preview", description: "Preview description buddy",point_value: 100, icon: "mug.fill", project_id: nil, project_name: nil),
-            Task(id: 4, title: "Preview", description: "Preview description buddy",point_value: 100, icon: "mug.fill", project_id: nil, project_name: nil)
+            TaskItem(id: 0, title: "Add User Logins", description: "Preview description buddy",point_value: 10, completed_at: nil, filter: "pending"),
+            TaskItem(id: 0, title: "Test 1", description: "Preview description buddy",point_value: 10, completed_at: nil, filter: "pending"),
+            TaskItem(id: 0, title: "Add User Logins", description: "Preview description buddy",point_value: 10, completed_at: nil, filter: "pending"),
+            TaskItem(id: 0, title: "Add User Logins", description: "Preview description buddy",point_value: 10, completed_at: nil, filter: "pending"),
+            TaskItem(id: 0, title: "Add User Logins", description: "Preview description buddy",point_value: 10, completed_at: nil, filter: "pending"),
+            TaskItem(id: 0, title: "Add User Logins", description: "Preview description buddy",point_value: 10, completed_at: nil, filter: "pending"),
         ]
         
         self.user_rewards = [
@@ -72,11 +67,7 @@ final class AppState: ObservableObject {
             completed_projects: 10,
         )
         
-        self.user_id = .init(
-            first_name: "Jonathan",
-            last_name: "Malave",
-        )
-        
+        self.user_id = 2
     }
     
     static var mock: AppState {
@@ -89,6 +80,10 @@ final class AppState: ObservableObject {
     
     func remove(points: Int) {
         self.points = max(self.points - points, 0)
+    }
+    
+    func setRedeemableRewards(_ rewards: [Reward]) {
+        self.redeemable_rewards = rewards
     }
     
 }
