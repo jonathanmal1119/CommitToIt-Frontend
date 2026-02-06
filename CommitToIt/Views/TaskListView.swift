@@ -20,14 +20,14 @@ struct TaskListView: View {
     @State var shown_task: TaskItem? = nil
     
     @State private var new_task_name : String = ""
-    @State private var new_task_point_amt : Int = 0
+    @State private var new_task_point_amt : Int = 100
     @State private var new_task_desc : String = ""
     
     var body: some View {
         NavigationStack{
             Group{
                 if isLoading {
-                    ProgressView("Fetching your tasks pookie!")
+                    ProgressView("Fetching your tasks!")
                 }
                 else if let error = errorMessage {
                     VStack {
@@ -38,32 +38,44 @@ struct TaskListView: View {
                     if show_create_new_task {
                         createNewTaskEntry()
                     }
-                    
-                    List {
-                        ForEach(appState.user_tasks) { task in
-                            createTaskEntry(task: task)
-                                .swipeActions(edge: .leading) {
-                                    Button(role: .destructive) {
-                                        completeTask(task: task)
-                                    } label: {
-                                        Label ("Complete", systemImage: "checkmark")
-                                    }.tint(.accent)
-                                }
-                                .onTapGesture {
-                                    show_task_info = true
-                                    shown_task = task
-                                }
-                        }
-                        .onDelete(perform: deleteTask)
-                        .contentShape(Rectangle())
-                        .sheet(isPresented: $show_task_info) {
-                            if let task = shown_task {
-                                showTaskInfoSheet(task: task)
+                    ZStack{
+                        if appState.user_tasks.count == 0 {
+                            VStack {
+                                Image(systemName: "exclamationmark.circle")
+                                    .font(.system(size: 30))
+                                Text("Congrats!\n No Tasks Left")
+                                    .font(.title3)
+                                    .multilineTextAlignment(.center)
                             }
+                            .opacity(0.75)
                         }
                         
+                        List {
+                            ForEach(appState.user_tasks) { task in
+                                createTaskEntry(task: task)
+                                    .swipeActions(edge: .leading) {
+                                        Button(role: .destructive) {
+                                            completeTask(task: task)
+                                        } label: {
+                                            Label ("Complete", systemImage: "checkmark")
+                                        }.tint(.accent)
+                                    }
+                                    .onTapGesture {
+                                        show_task_info = true
+                                        shown_task = task
+                                    }
+                            }
+                            .onDelete(perform: deleteTask)
+                            .contentShape(Rectangle())
+                            .sheet(isPresented: $show_task_info) {
+                                if let task = shown_task {
+                                    showTaskInfoSheet(task: task)
+                                }
+                            }
+                            
+                        }
+                        .listStyle(.plain)
                     }
-                    .listStyle(.plain)
                 }
             }
         }
@@ -126,20 +138,17 @@ struct TaskListView: View {
             
             HStack (spacing: 20) {
                 Button {
-                    // Close
                     self.show_create_new_task = false
                     
                     // TODO: Link API Service
                     
-                    
-                    //Flush Values
                     new_task_name = ""
                     new_task_point_amt = 0
                 } label : {
                     Text("Confirm")
                         .padding(5)
                         .padding([.trailing, .leading], 50)
-                        .background(.secondary.opacity(0.2))
+                        .background(.secondary.opacity(0.5))
                         .foregroundColor(.primary)
                         .cornerRadius(10)
                 }
@@ -155,7 +164,7 @@ struct TaskListView: View {
                     Text("Cancel")
                         .padding(5)
                         .padding([.trailing, .leading], 50)
-                        .background(.red.opacity(0.2))
+                        .background(Color.red.opacity(0.7))
                         .cornerRadius(10)
                         .foregroundColor(.primary)
                 }
@@ -293,5 +302,4 @@ struct showTaskInfoSheet: View {
 #Preview {
     TaskListView(show_create_new_task: .constant(false))
         .environmentObject(AppState(load_mock_data: true))
-    //showTaskInfoSheet(task: .init(id: 0, title: "mock Task", description: "This is a mock task and i need to test the text editor", point_value: 10, icon: "mug.fill"))
 }

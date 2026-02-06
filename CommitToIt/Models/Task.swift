@@ -10,13 +10,7 @@ import Foundation
 struct TaskResponse: Decodable {
     let status: String
     let message: String
-    let data: TaskData
-}
-
-struct TaskData: Decodable {
-    let inQueueTasks: [TaskItem]
-    let pendingTasks: [TaskItem]
-    let completedTasks: [TaskItem]
+    let data: [TaskItem]?
 }
 
 struct TaskItem: Codable, Identifiable {

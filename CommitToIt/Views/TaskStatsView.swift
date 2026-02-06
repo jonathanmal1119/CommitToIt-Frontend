@@ -49,6 +49,11 @@ struct TaskStatsView: View {
             }
             .padding(8)
         }
+        .onAppear()
+    }
+    
+    func syncHomePage() {
+        
     }
 }
 

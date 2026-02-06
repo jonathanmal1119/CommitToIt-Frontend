@@ -68,6 +68,7 @@ struct RewardsView: View {
                 Image(systemName: reward.icon)
                     .font(.system(size: 25))
             }
+            .frame(maxWidth: 30, maxHeight: 40)
             .padding(10)
             .background(.accent.opacity(0.4))
             .cornerRadius(10)
@@ -89,7 +90,7 @@ struct RewardsView: View {
             Spacer()
 
             Button {
-                fetchAvailableRewards()
+                //fetchAvailableRewards()
             } label: {
                 HStack {
                     Text("\(reward.cost)")
@@ -108,23 +109,6 @@ struct RewardsView: View {
 
     func invertTheme() -> Color {
         colorScheme == .dark ? .white : .black
-    }
-    
-    func fetchAvailableRewards() {
-        isLoading = true
-        errorMessage = nil
-
-        Task {
-            do {
-                let response = try await RewardService.fetchAvailableRewards()
-
-                appState.setRedeemableRewards(response)
-            } catch {
-                errorMessage = error.localizedDescription
-            }
-
-            isLoading = false
-        }
     }
 }
 

@@ -9,23 +9,33 @@ import SwiftUI
 
 @main
 struct CommitToItApp: App {
-    @StateObject var appState = AppState(load_mock_data: true)
+    @StateObject var appState = AppState.shared
     
     var body: some Scene {
         WindowGroup {
             ContentView()
                 .environmentObject(appState)
                 .task {
-                    await runStartUpSync()
+                    //await runStartUpSync()
                 }
         }
     }
     
     func runStartUpSync() async {
         do {
-            try await fetchTasks()
-            try await fetchRewards()
-            try await fetchUser()
+            appState.syncAuthState()
+            
+            if (appState.isAuthenticated == false){
+                return
+            }
+            
+            print("Authed")
+//
+//            appState.selectedTab = .home
+                
+            //try await fetchTasks()
+            //try await fetchRewards()
+            //try await fetchUser()
         }
         catch {
             print("Error Sync Failed")
@@ -38,24 +48,24 @@ struct CommitToItApp: App {
     
     func fetchRewards() async throws {
         do {
-            let response = try await RewardService.fetchAvailableRewards()
+            let availableRewardsResponse = try await RewardService.fetchAvailableRewards()
 
-            appState.setRedeemableRewards(response)
+            appState.setRedeemableRewards(availableRewardsResponse)
         } catch {
-            print(error.localizedDescription)
+            print("[FetchAvailableRewards] \(error.localizedDescription)")
         }
-        // update user rewards
+        
+        do {
+            let userRewardsResponse = try await RewardService.fetchUserRewards(user_id: appState.user_id)
+            
+            appState.setUserRewards(userRewardsResponse)
+        } catch {
+            print("[FetchUserRewards] \(error.localizedDescription)")
+        }
+
     }
     
-    func fetchUser() async throws {
-        do {
-            let response = try await UserService.fetchUserStats(user_id: appState.user_id)
-
-            appState.setUserStats(response.data)
-        } catch {
-            print(error.localizedDescription)
-        }
-    }
+    
     
     
 }

@@ -23,11 +23,11 @@ struct HomePageView: View {
             
             VStack (spacing: 10){
                 ZStack {
-//                    Image(systemName: "checklist")
-//                        .foregroundStyle(.primary)
-//                        .font(.title.bold())
-//                        .frame(maxWidth: .infinity, alignment: .leading)
-//                    
+                    Image(systemName: "checklist")
+                        .foregroundStyle(.primary)
+                        .font(.title.bold())
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    
                     Text("Commit To It")
                         .font(.system(size: 40)).bold()
                         .foregroundStyle(.primary)
@@ -41,6 +41,7 @@ struct HomePageView: View {
 //                            .foregroundStyle(.primary)
 //                            .font(.largeTitle.bold())
 //                    }
+//                    .frame(maxWidth: .infinity, alignment: .trailing)
                 }
                 .frame(maxWidth: .infinity, alignment: .init(horizontal: .trailing, vertical: .top))
                 .padding(10)

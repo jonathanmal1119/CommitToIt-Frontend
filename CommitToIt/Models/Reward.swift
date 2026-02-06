@@ -9,7 +9,7 @@ import Foundation
 struct RewardResponse: Decodable {
     let status: String
     let message: String
-    let data: [Reward]
+    let data: [Reward]?
 }
 
 struct Reward: Identifiable, Codable, Equatable {
@@ -20,6 +20,7 @@ struct Reward: Identifiable, Codable, Equatable {
     var icon: String
     var earned_at: Date?
     var redeemed_at: Date?
+    var filter: String?
     
     enum CodingKeys: String, CodingKey {
         case id = "reward_id"
@@ -29,6 +30,7 @@ struct Reward: Identifiable, Codable, Equatable {
         case icon = "icon"
         case earned_at = "earned_at"
         case redeemed_at = "redeemed_at"
+        case filter = "filter"
     }
 }
 

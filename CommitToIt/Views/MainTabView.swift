@@ -21,10 +21,8 @@ struct MainTabView: View {
                         TaskTabView()
                     case .rewards:
                         RewardsView()
-                    case .history:
-                        EmptyView()
-                    case .profile:
-                        HistoryView()
+                    case .login:
+                        LoginView()
                 }
                 
             }
@@ -32,7 +30,10 @@ struct MainTabView: View {
             
             
             HStack {
-                BottomNavBar()
+                if appState.selectedTab != .login {
+                    BottomNavBar()
+                }
+                
             }
         }
         .animation(.easeIn(duration: 0), value: appState.selectedTab)
@@ -47,9 +48,6 @@ struct BottomNavBar: View {
             navButton(icon: "list.clipboard.fill", tab: .tasks)
             navButton(icon: "house.fill", tab: .home)
             navButton(icon: "gift.fill", tab: .rewards)
-            
-            //navButton(icon: "clock.arrow.circlepath", tab: .history)
-            //navButton(icon: "person.fill", tab: .profile)
         }
         .padding(.horizontal, 28)
         .padding(.vertical, 14)

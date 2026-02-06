@@ -9,7 +9,7 @@ import Foundation
 
 final class TaskService {
     
-    static func fetchUserTasks(user_id: Int) async throws -> TaskResponse {
+    static func fetchUserTasks(user_id: Int) async throws -> [TaskItem] {
         let data = try await APIClient.request(
             urlString: "/task?user_id=\(user_id)",
             method: "GET"
@@ -19,8 +19,8 @@ final class TaskService {
         decoder.dateDecodingStrategy = .iso8601
 
         let response = try decoder.decode(TaskResponse.self, from: data)
-
-        return response
+        
+        return response.data ?? []
     }
     
 }

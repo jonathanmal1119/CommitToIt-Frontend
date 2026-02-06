@@ -79,7 +79,7 @@ struct RewardsListView: View {
     }
 }
 
-#Preview {
+#Preview("RewardsListView") {
     RewardsListView(showAdvancedInfo: true)
-        .environmentObject(AppState(load_mock_data: true))
+        .environmentObject(AppState.shared)
 }

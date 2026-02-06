@@ -52,7 +52,7 @@ struct ProgressBarView: View {
                         
                     }
                     
-                    // Mileston 1 (25%)
+                    // Milestone 1 (25%)
                     VStack {
                         circleColor(for: 0.25, currentProgress: progress)
                             .frame(width:5 ,height: 18)
@@ -64,7 +64,7 @@ struct ProgressBarView: View {
                     }
                     .position(x: geometry.size.width * 0.25 , y: geometry.size.height + 1.0)
                     
-                    // Mileston 2 (50%)
+                    // Milestone 2 (50%)
                     VStack {
                         circleColor(for: 0.5, currentProgress: progress)
                             .frame(width:5 ,height: 18)
@@ -77,7 +77,7 @@ struct ProgressBarView: View {
                     .position(x: geometry.size.width * 0.5 , y: geometry.size.height + 1.0)
                     
                     
-                    // Mileston 3 (75%)
+                    // Milestone 3 (75%)
                     VStack {
                         circleColor(for: 0.75, currentProgress: progress)
                             .frame(width:5 ,height: 18)

@@ -14,14 +14,13 @@ enum APIError: Error {
 }
 
 final class APIClient {
-    
     private static let baseURL: String = "https://api.committoit.click/api"
 
     static func request(
         urlString: String,
         method: String = "GET",
         headers: [String: String] = [:],
-        body: Data? = nil
+        body: Data? = nil,
     ) async throws -> Data {
         
 
@@ -32,7 +31,12 @@ final class APIClient {
         var request = URLRequest(url: url)
         request.httpMethod = method
         request.httpBody = body
-
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        if let token = AuthManager.shared.accessToken {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        
         headers.forEach {
             request.setValue($0.value, forHTTPHeaderField: $0.key)
         }
@@ -47,7 +51,6 @@ final class APIClient {
             throw APIError.httpStatus(httpResponse.statusCode)
         }
 
-        
         return data
     }
 }
