@@ -25,7 +25,7 @@ struct HomePageView: View {
                 ZStack {
                     Image(systemName: "checklist")
                         .foregroundStyle(.primary)
-                        .font(.title.bold())
+                        .font(.title)
                         .frame(maxWidth: .infinity, alignment: .leading)
                     
                     Text("Commit To It")
@@ -34,14 +34,14 @@ struct HomePageView: View {
                         .frame(maxWidth: .infinity, alignment: .center)
                         
                     
-//                    Button() {
-//                        
-//                    } label: {
-//                        Image(systemName: "gearshape.fill")
-//                            .foregroundStyle(.primary)
-//                            .font(.largeTitle.bold())
-//                    }
-//                    .frame(maxWidth: .infinity, alignment: .trailing)
+                    Button() {
+                        AuthService.logout()
+                    } label: {
+                        Image(systemName: "rectangle.portrait.and.arrow.right")
+                            .foregroundStyle(.red.opacity(0.8))
+                            .font(.title2)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .trailing)
                 }
                 .frame(maxWidth: .infinity, alignment: .init(horizontal: .trailing, vertical: .top))
                 .padding(10)
@@ -85,7 +85,6 @@ struct HomePageView: View {
                     TaskListView(show_create_new_task: .constant(false))
                         .padding(.top, -8)
                 }
-                //.padding(10)
                 .background(.background)
                 .cornerRadius(15)
                 .shadow(radius: 10)
@@ -122,7 +121,6 @@ struct HomePageView: View {
                         RewardsListView(showAdvancedInfo: false)
                             .padding(.top, -8)
                     }
-                    //.padding(10)
                     .background(.background)
                     .cornerRadius(15)
                     .shadow(radius: 10)
@@ -136,24 +134,8 @@ struct HomePageView: View {
     }
 }
 
-struct SettingsOverlay: View {
-    
-    var body:  some View {
-        ZStack {
-            Color.black.opacity(0.7)
-                .edgesIgnoringSafeArea(.all)
-            VStack {
-                Text("Settings")
-                    .font(.largeTitle)
-                    .padding()
-                Spacer()
-            }
-        }
-    }
-}
-
 #Preview {
     HomePageView()
-        .environmentObject(AppState(load_mock_data: true))
+        .environmentObject(AppState.shared)
 }
 

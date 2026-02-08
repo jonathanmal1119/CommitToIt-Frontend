@@ -16,6 +16,7 @@ struct CommitToItApp: App {
             ContentView()
                 .environmentObject(appState)
                 .task {
+                    //appState.syncAuthState()
                     //await runStartUpSync()
                 }
         }
@@ -30,11 +31,11 @@ struct CommitToItApp: App {
             }
             
             print("Authed")
-//
-//            appState.selectedTab = .home
+
+            appState.selectedTab = .home
                 
-            //try await fetchTasks()
-            //try await fetchRewards()
+            try await fetchTasks()
+            try await fetchRewards()
             //try await fetchUser()
         }
         catch {
@@ -43,7 +44,14 @@ struct CommitToItApp: App {
     }
     
     func fetchTasks() async throws {
-        // get user tasks
+        do {
+            let taskResponse = try await TaskService.fetchUserTasks()
+
+            AppState.shared.setUserTasks(taskResponse)
+        } catch {
+            print("[FetchTasks] \(error.localizedDescription)")
+        }
+
     }
     
     func fetchRewards() async throws {

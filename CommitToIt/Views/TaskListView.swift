@@ -20,7 +20,7 @@ struct TaskListView: View {
     @State var shown_task: TaskItem? = nil
     
     @State private var new_task_name : String = ""
-    @State private var new_task_point_amt : Int = 100
+    @State private var new_task_point_amt : Int = 10
     @State private var new_task_desc : String = ""
     
     var body: some View {
@@ -111,10 +111,13 @@ struct TaskListView: View {
                     .lineLimit(1)
                     .truncationMode(.tail)
                     
-                TextField("Reward Points", value: $new_task_point_amt, format: .number)
-                    .keyboardType(.numberPad)
-                    .textFieldStyle(.roundedBorder)
-                    .frame(maxWidth: 50)
+                Text("\(new_task_point_amt)")
+                    .frame(maxWidth: 20)
+                    .padding(.leading, 30)
+//                TextField("Reward Points", value: $new_task_point_amt, format: .number)
+//                    .keyboardType(.numberPad)
+//                    .textFieldStyle(.roundedBorder)
+//                    .frame(maxWidth: 50)
                 
                 Image(systemName: "star.fill")
                     .foregroundColor(.accent)
@@ -132,7 +135,7 @@ struct TaskListView: View {
                 .padding(1)
                 .lineLimit(10)
                 .truncationMode(.tail)
-                .frame(height: 150)
+                .frame(height: 150)  
                 .background(.ultraThinMaterial)
                 .cornerRadius(3)
             
@@ -141,9 +144,8 @@ struct TaskListView: View {
                     self.show_create_new_task = false
                     
                     // TODO: Link API Service
-                    
-                    new_task_name = ""
-                    new_task_point_amt = 0
+                    addTask()
+
                 } label : {
                     Text("Confirm")
                         .padding(5)
@@ -157,9 +159,9 @@ struct TaskListView: View {
                     // Close
                     self.show_create_new_task = false
                     
-                    // Flush Values
+                        // Flush Values
                     new_task_name = ""
-                    new_task_point_amt = 0
+                    new_task_desc = ""
                 } label : {
                     Text("Cancel")
                         .padding(5)
@@ -180,12 +182,53 @@ struct TaskListView: View {
     
     
     func deleteTask(at offsets: IndexSet) {
-        tasks.remove(atOffsets: offsets)
+        guard let index = offsets.first else { return }
+        let deletingTask = appState.user_tasks[index]
+        Task {
+            do {
+                let result = try await TaskService.deleteTask(task_id: deletingTask.id)
+
+                if result {
+                    appState.removeTask(id: deletingTask.id)
+                }
+            } catch {
+                print("[CompleteTask] Error: \(error)")
+            }
+        }
+        
     }
     
     func completeTask(task: TaskItem) {
-        
+        Task {
+            do {
+                let result = try await TaskService.markTaskCompleted(task_id: task.id)
+
+                if result {
+                    appState.removeTask(id: task.id)
+                }
+            } catch {
+                print("[CompleteTask] Error: \(error)")
+            }
+        }
     }
+    
+    private func addTask() {
+        Task {
+            do {
+                let result = try await TaskService.createTask(title: new_task_name, description: new_task_desc, point_value: new_task_point_amt)
+
+                appState.addTask(result[0])
+                
+                // Flush Values
+                new_task_name = ""
+                new_task_desc = ""
+            } catch {
+                print("[CreateTask] Error: \(error)")
+            }
+            
+        }
+    }
+    
     
 }
 
@@ -300,6 +343,6 @@ struct showTaskInfoSheet: View {
 }
 
 #Preview {
-    TaskListView(show_create_new_task: .constant(false))
+    TaskListView(show_create_new_task: .constant(true))
         .environmentObject(AppState(load_mock_data: true))
 }

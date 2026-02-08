@@ -13,6 +13,8 @@ struct LoginView: View {
     @State private var password = "tttttt"
     @State private var email = "t@t.com"
     
+    @State private var errorDisplay: Bool = false
+    
     var body: some View {
         ZStack {
             LinearGradient(
@@ -24,26 +26,42 @@ struct LoginView: View {
             )
             .ignoresSafeArea()
             
-            VStack {
+            VStack(spacing: 10) {
+                VStack {
+                    ZStack {
+
+                        Text("Commit To It")
+                            .font(.system(size: 40)).bold()
+                            .foregroundStyle(.primary)
+                            .frame(maxWidth: .infinity, alignment: .center)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .init(horizontal: .trailing, vertical: .top))
+                    .padding(10)
+                    .background(.background)
+                    .cornerRadius(15)
+                    .shadow(radius: 10)
+                    .padding(.horizontal, 20)
+                }
                 
                 VStack (alignment: .leading) {
                     
-                    
-                    Text("Login")
-                        .font(.largeTitle)
+                    Text("Sign In")
+                        .font(.largeTitle.bold())
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding(.horizontal,10)
-                        .padding(.bottom, 40)
+                        .padding(.bottom, 50)
                         .padding(.top, 20)
                         .background(.background)
-                
                     
                     ZStack (alignment: .topLeading) {
                         TextField("Email", text: $email)
                             .keyboardType(.emailAddress)
                             .autocapitalization(.none)
                             .textFieldStyle(.roundedBorder)
+                            .border(.red, width: errorDisplay ? 1 : 0)
+                            .animation(.easeInOut(duration: 0.1), value: errorDisplay)
                             .padding(.top, 7)
+                        
                         
                         Text("Email")
                             .font(.caption)
@@ -52,12 +70,15 @@ struct LoginView: View {
                             .padding(.leading, 5)
                     }
                     .padding(.horizontal, 10)
-
+                    
                     
                     ZStack (alignment: .topLeading) {
                         SecureField("Password", text: $password)
                             .textFieldStyle(.roundedBorder)
+                            .border(.red, width: errorDisplay ? 1 : 0)
+                            .animation(.easeInOut(duration: 0.1), value: errorDisplay)
                             .padding(.top, 7)
+                        
                         
                         Text("Password")
                             .font(.caption)
@@ -74,15 +95,17 @@ struct LoginView: View {
                     } label: {
                         ZStack {
                             UnevenRoundedRectangle(cornerRadii: .init(
-                                topLeading: 20,
-                                bottomLeading: 20,
-                                bottomTrailing: 20,
-                                topTrailing: 20
+                                topLeading: 10,
+                                bottomLeading: 10,
+                                bottomTrailing: 10,
+                                topTrailing: 10
                             ))
                             //.fill(.accent.opacity(0.8))
+                            .fill(errorDisplay ? .red : Color(.systemBlue))
+                            .animation(.easeInOut(duration: 0.1), value: errorDisplay)
                             .frame(maxHeight: 50)
-                        
-                            Text("Login")
+                            
+                            Text("Sign In")
                                 .foregroundStyle(.white)
                                 .font(.title3.bold())
                         }
@@ -91,6 +114,7 @@ struct LoginView: View {
                     .padding(.horizontal, 10)
                     .padding(.vertical, 20)
                     .buttonStyle(.borderless)
+                    
                     .frame(maxWidth: .infinity)
                 }
                 .frame(maxWidth: .infinity, alignment: .init(horizontal: .trailing, vertical: .top))
@@ -107,12 +131,17 @@ struct LoginView: View {
     private func login() {
         Task {
             do {
-                try await UserService.login(email: email, password: password)
+                try await AuthService.login(email: email, password: password)
                 
                 if AuthManager.shared.isAuthenticated {
                     appState.selectedTab = .home
                     await syncHomeData()
                 }
+            } catch {
+                //print("[Sign In Error] \(error.localizedDescription)")
+                errorDisplay = true
+                try await Task.sleep(nanoseconds: 1_000_000_000)
+                errorDisplay = false
             }
             
         }
@@ -138,7 +167,7 @@ struct LoginView: View {
 
             appState.setRedeemableRewards(availableRewardsResponse)
         } catch {
-            print("[FetchAvailableRewards] \(error.localizedDescription)")
+            print("[FetchAvailableRewards] \(error)")
         }
         
         do {
@@ -153,7 +182,7 @@ struct LoginView: View {
     
     func fetchTasks() async throws {
         do {
-            let taskResponse = try await TaskService.fetchUserTasks(user_id: appState.user_id)
+            let taskResponse = try await TaskService.fetchUserTasks()
 
             appState.setUserTasks(taskResponse)
         } catch {

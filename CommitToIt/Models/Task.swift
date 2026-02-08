@@ -7,6 +7,34 @@
 
 import Foundation
 
+
+// Requests
+struct AddTaskRequest: Encodable {
+    let user_id: Int
+    let title: String
+    let description: String?
+    let point_value: Int
+}
+
+struct UpdateTaskRequest {
+    let user_id: Int
+    let task_id: Int
+    let title: String?
+    let description: String?
+}
+
+struct MarkTaskCompletedRequest: Encodable {
+    let user_id: Int
+    let task_id: Int
+}
+
+struct DeleteTaskRequest: Encodable {
+    let user_id: Int
+    let task_id: Int
+}
+
+
+// Responses
 struct TaskResponse: Decodable {
     let status: String
     let message: String
@@ -30,5 +58,3 @@ struct TaskItem: Codable, Identifiable {
         case filter = "filter"
     }
 }
-
-

@@ -46,7 +46,7 @@ struct ProgressBarView: View {
                             .fill(.accent)
                             .frame(
                                 width: geometry.size.width * CGFloat(progress),
-                                height: 10
+                                height: 8
                             )
                             .animation(.spring(), value: appState.user_stats.point_balance)
                         
@@ -58,7 +58,7 @@ struct ProgressBarView: View {
                             .frame(width:5 ,height: 18)
                             .animation(.spring(), value: appState.user_stats.point_balance)
                         
-                        Text("25")
+                        Text((Double(total) * 0.25).formatted())
                             .font(.headline)
                             .italic()
                     }
@@ -69,8 +69,8 @@ struct ProgressBarView: View {
                         circleColor(for: 0.5, currentProgress: progress)
                             .frame(width:5 ,height: 18)
                             .animation(.spring(), value: appState.user_stats.point_balance)
-                        
-                        Text("50")
+
+                        Text((Double(total) * 0.5).formatted())
                             .font(.headline)
                             .italic()
                     }
@@ -83,7 +83,7 @@ struct ProgressBarView: View {
                             .frame(width:5 ,height: 18)
                             .animation(.spring(), value: appState.user_stats.point_balance)
                         
-                        Text("75")
+                        Text((Double(total) * 0.75).formatted())
                             .font(.headline)
                             .italic()
                     }
