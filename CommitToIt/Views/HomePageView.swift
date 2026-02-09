@@ -105,7 +105,7 @@ struct HomePageView: View {
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             
                             Button {
-                                appState.selectedTab = .rewards
+                                appState.selectedTab = .history
                             } label : {
                                 Image(systemName: "arrow.right")
                                     .foregroundColor(.accent)

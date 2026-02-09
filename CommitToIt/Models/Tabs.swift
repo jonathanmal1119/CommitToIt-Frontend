@@ -11,5 +11,12 @@ enum Tabs: Hashable {
     case home
     case tasks
     case rewards
+    case history
     case login
+}
+
+
+enum HistoryTabs: Hashable {
+    case rewards
+    case tasks
 }

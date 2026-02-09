@@ -21,6 +21,10 @@ final class AppState: ObservableObject {
     // MARK: - Core User Data
     @Published private(set) var user_tasks: [TaskItem] = []
     @Published private(set) var user_rewards: [Reward] = []
+    
+    // MARK: - History
+    //@Published private(set) var user_redeemed_rewards: [Reward] = []
+    @Published private(set) var user_completed_tasks: [TaskItem] = []
 
     // MARK: - Stats
     @Published private(set) var user_stats: UserStats
@@ -37,21 +41,16 @@ final class AppState: ObservableObject {
     init(load_mock_data: Bool) {
         
         self.redeemable_rewards = [
-//            Reward(id: 1, title: "Test Reward", description: "Mock Data", cost: 100, icon: "mug.fill"),
-//            Reward(id: 2, title: "Test Reward", description: "Mock Data", cost: 100, icon: "fork.knife"),
-//            Reward(id: 3, title: "Test Reward", description: "Mock Data", cost: 100, icon: "gamecontroller.fill"),
-//            Reward(id: 4, title: "Test Reward", description: "Mock Data", cost: 100, icon: "cart.badge.clock.fill"),
-//            Reward(id: 5, title: "Test Reward", description: "Mock Data", cost: 100, icon: "bag.fill"),
-//            Reward(id: 6, title: "Test Reward", description: "Mock Data", cost: 100, icon: "bag.fill.badge.plus")
+            Reward(id: 1, title: "Test Reward", description: "Mock Data", cost: 100, icon: "mug.fill"),
+            Reward(id: 2, title: "Test Reward", description: "Mock Data", cost: 100, icon: "fork.knife"),
+            Reward(id: 3, title: "Test Reward", description: "Mock Data", cost: 100, icon: "gamecontroller.fill"),
+            Reward(id: 4, title: "Test Reward", description: "Mock Data but this needs tio be a really long desc so i can fully test it", cost: 100, icon: "cart.badge.clock.fill"),
+            Reward(id: 5, title: "Test Reward", description: "Mock Data", cost: 100, icon: "bag.fill"),
+            Reward(id: 6, title: "Test Reward", description: "Mock Data", cost: 100, icon: "bag.fill.badge.plus")
         ]
         
         self.user_tasks = [
-//            TaskItem(id: 0, title: "Add User Logins", description: "Preview description buddy",point_value: 10, completed_at: nil, filter: "pending"),
-//            TaskItem(id: 0, title: "Test 1", description: "Preview description buddy",point_value: 10, completed_at: nil, filter: "pending"),
-//            TaskItem(id: 0, title: "Add User Logins", description: "Preview description buddy",point_value: 10, completed_at: nil, filter: "pending"),
-//            TaskItem(id: 0, title: "Add User Logins", description: "Preview description buddy",point_value: 10, completed_at: nil, filter: "pending"),
-//            TaskItem(id: 0, title: "Add User Logins", description: "Preview description buddy",point_value: 10, completed_at: nil, filter: "pending"),
-//            TaskItem(id: 0, title: "Add User Logins", description: "Preview description buddy",point_value: 10, completed_at: nil, filter: "pending"),
+            TaskItem(id: 0, title: "Add eUser Logins", description: "Preview description buddy",point_value: 10, completed_at: Calendar.current.date(byAdding: .day, value: -1, to: Date()), filter: "pending"),
         ]
         
         self.user_rewards = [
@@ -131,12 +130,30 @@ final class AppState: ObservableObject {
         self.user_info = userInfo
     }
     
+    func setUserCompletedTasks(_ tasks: [TaskItem]) {
+        self.user_completed_tasks = tasks
+    }
+    
     func addTask(_ task: TaskItem) {
         self.user_tasks.insert(task, at: 0)
     }
     
     func removeTask(id: Int) {
         self.user_tasks.removeAll { $0.id == id }
+    }
+    
+    func addUserReward(_ reward: Reward) {
+        self.user_rewards.insert(reward, at: 0)
+        self.user_stats.point_balance -= reward.cost
+        self.user_stats.redeemed_rewards += 1
+    }
+    
+    func removeUserReward(id: Int) {
+        self.user_rewards.removeAll { $0.id == id }
+    }
+    
+    func addCompletedTask(_ task: TaskItem) {
+        self.user_completed_tasks.insert(task, at: 0)
     }
     
 }

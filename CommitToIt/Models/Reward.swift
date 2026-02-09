@@ -6,6 +6,14 @@
 //
 import Foundation
 
+//Requests
+
+struct RewardRequest: Encodable {
+    let user_id: Int
+    let reward_id: Int
+}
+
+// Response
 struct RewardResponse: Decodable {
     let status: String
     let message: String

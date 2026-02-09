@@ -13,10 +13,10 @@ struct UserStatsResponse: Decodable {
 }
 
 struct UserStats : Codable, Equatable {
-    let point_balance: Int
-    let completed_tasks: Int
-    let redeemed_rewards: Int
-    let total_points_earned: Int
+    var point_balance: Int
+    var completed_tasks: Int
+    var redeemed_rewards: Int
+    var total_points_earned: Int
     
     enum CodingKeys: String, CodingKey {
         case point_balance = "point_balance"

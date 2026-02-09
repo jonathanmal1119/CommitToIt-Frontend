@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct MainTabView: View {
-    //@State private var selectedTab: Tabs = .home
     @EnvironmentObject var appState: AppState
     
     var body: some View {
@@ -23,6 +22,8 @@ struct MainTabView: View {
                         RewardsView()
                     case .login:
                         LoginView()
+                    case .history:
+                        HistoryView()
                 }
                 
             }
@@ -36,6 +37,7 @@ struct MainTabView: View {
                 
             }
         }
+        .ignoresSafeArea(.keyboard, edges: .bottom)
         .animation(.easeIn(duration: 0), value: appState.selectedTab)
     }
 }
@@ -45,9 +47,10 @@ struct BottomNavBar: View {
     
     var body: some View {
         HStack (spacing:40) {
-            navButton(icon: "list.clipboard.fill", tab: .tasks)
             navButton(icon: "house.fill", tab: .home)
+            navButton(icon: "list.clipboard.fill", tab: .tasks)
             navButton(icon: "gift.fill", tab: .rewards)
+            navButton(icon: "clock.arrow.trianglehead.clockwise.rotate.90.path.dotted", tab: .history)
         }
         .padding(.horizontal, 28)
         .padding(.vertical, 14)
@@ -67,7 +70,7 @@ struct BottomNavBar: View {
             }
         } label: {
             Image(systemName: icon)
-                .font(.system(size: tab == .home ? 27 : 20, weight: .semibold))
+                .font(.system(size: 20, weight: .semibold))
                 .foregroundColor(appState.selectedTab == tab ? .accent : .gray)
                 .scaleEffect(appState.selectedTab == tab ? 1.3 : 1.0)
         }

@@ -10,7 +10,6 @@ import SwiftUI
 struct TaskListView: View {
     @EnvironmentObject var appState: AppState
     
-    // TODO: Switch to global isloading
     @State var tasks : [TaskItem] = []
     @State private var isLoading = false
     @State private var errorMessage: String?
@@ -41,7 +40,7 @@ struct TaskListView: View {
                     ZStack{
                         if appState.user_tasks.count == 0 {
                             VStack {
-                                Image(systemName: "exclamationmark.circle")
+                                Image(systemName: "hands.sparkles")
                                     .font(.system(size: 30))
                                 Text("Congrats!\n No Tasks Left")
                                     .font(.title3)
@@ -143,7 +142,6 @@ struct TaskListView: View {
                 Button {
                     self.show_create_new_task = false
                     
-                    // TODO: Link API Service
                     addTask()
 
                 } label : {
@@ -203,9 +201,15 @@ struct TaskListView: View {
             do {
                 let result = try await TaskService.markTaskCompleted(task_id: task.id)
 
-                if result {
-                    appState.removeTask(id: task.id)
+                if !result {
+                    return
                 }
+                
+                appState.removeTask(id: task.id)
+                
+                let syncStats = try await UserService.fetchUserStats(user_id: appState.user_id)
+                
+                appState.setUserStats(syncStats)
             } catch {
                 print("[CompleteTask] Error: \(error)")
             }
@@ -237,7 +241,7 @@ struct showTaskInfoSheet: View {
     
     @State var task: TaskItem
     
-    @State var isEditing: Bool = true
+    @State var isEditing: Bool = false
     
     @State private var edited_task_name : String = ""
     @State private var edited_task_desc : String = ""
@@ -343,6 +347,6 @@ struct showTaskInfoSheet: View {
 }
 
 #Preview {
-    TaskListView(show_create_new_task: .constant(true))
+    TaskListView(show_create_new_task: .constant(false))
         .environmentObject(AppState(load_mock_data: true))
 }

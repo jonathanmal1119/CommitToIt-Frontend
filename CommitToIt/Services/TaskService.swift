@@ -77,5 +77,19 @@ final class TaskService {
 
         return response.status == "OK" ? true : false
     }
+    
+    static func fetchCompletedUserTasks() async throws -> [TaskItem] {
+        let data = try await APIClient.request(
+            urlString: "/task?user_id=\(AppState.shared.user_id)&filter=completed",
+            method: "GET"
+        )
+
+        let decoder = Foundation.JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+
+        let response = try decoder.decode(TaskResponse.self, from: data)
+        
+        return response.data ?? []
+    }
 }
 

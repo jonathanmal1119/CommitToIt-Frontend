@@ -1,5 +1,5 @@
 //
-//  HistoryView.swift
+//  LoginView.swift
 //  CommitToIt
 //
 //  Created by Jonathan Malave on 1/27/26.
@@ -185,6 +185,10 @@ struct LoginView: View {
             let taskResponse = try await TaskService.fetchUserTasks()
 
             appState.setUserTasks(taskResponse)
+            
+            let completedTasksResponse = try await TaskService.fetchCompletedUserTasks()
+            
+            appState.setUserCompletedTasks(completedTasksResponse)
         } catch {
             print("[FetchTasks] \(error.localizedDescription)")
         }
