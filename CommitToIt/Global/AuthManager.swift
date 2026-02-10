@@ -28,6 +28,11 @@ final class AuthManager {
         keychain.set(refresh, forkey: "refresh_token")
     }
     
+    func refreshAccessToken(new_accessToken: String) {
+        accessToken = new_accessToken
+        keychain.set(new_accessToken, forkey: "access_token")
+    }
+    
     func clearTokens() {
         accessToken = nil
         keychain.delete("access_token")

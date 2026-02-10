@@ -46,11 +46,58 @@ final class APIClient {
         guard let httpResponse = response as? HTTPURLResponse else {
             throw APIError.invalidResponse
         }
+        
+        if (200...299).contains(httpResponse.statusCode) {
+            return data
+        }
 
-        guard (200...299).contains(httpResponse.statusCode) else {
-            throw APIError.httpStatus(httpResponse.statusCode)
+        if (httpResponse.statusCode == 401) {
+            let refreshed = try await refreshAccessToken()
+            
+            if refreshed {
+                return try await self.request(
+                    urlString: urlString,
+                    method: method,
+                    headers: headers,
+                    body: body,
+                )
+            }
         }
 
         return data
     }
+    
+    static func refreshAccessToken() async throws -> Bool {
+
+        print("Refreshing Token")
+        
+        guard let refreshToken = AuthManager.shared.getRefreshToken() else {
+            throw APIError.httpStatus(401)
+        }
+
+        let body = try JSONEncoder().encode(
+            AuthRequest(refreshToken: refreshToken)
+        )
+
+        do {
+            let data = try await request(
+                urlString: "/user/refresh",
+                method: "POST",
+                body: body,
+            )
+
+            let decoded = try JSONDecoder().decode(AuthResponse.self, from: data)
+            
+            AuthManager.shared.refreshAccessToken(new_accessToken: decoded.accessToken)
+
+            return true
+        } catch {
+            print("[RefreshToken] \(error)")
+            AuthManager.shared.clearTokens()
+            AppState.shared.signOut()
+            return false
+        }
+    }
+
+
 }

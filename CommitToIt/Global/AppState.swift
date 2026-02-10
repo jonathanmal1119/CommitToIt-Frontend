@@ -146,8 +146,6 @@ final class AppState: ObservableObject {
         self.user_rewards.insert(reward, at: 0)
         self.user_stats.point_balance -= reward.cost
         self.user_stats.redeemed_rewards += 1
-        
-        print(user_rewards)
     }
     
     func removeUserReward(id: Int) {
