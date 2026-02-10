@@ -22,14 +22,18 @@ struct TaskTabView: View {
                         .multilineTextAlignment(.center)
                     
                     Button {
-                        showingAddMenu.toggle()
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                            showingAddMenu.toggle()
+                        }
                     } label: {
                         Image(systemName: "plus")
                             .font(.system(size: 30).bold())
+                            .rotationEffect(.degrees(showingAddMenu ? 45 : 0))
+                            .foregroundColor(showingAddMenu ? .red : .accent)
                     }
                     .frame(maxWidth: .infinity, alignment: .trailing)
-                        .padding(.trailing, 20)
-                        .foregroundColor(.accent)
+                    .padding(.trailing, 20)
+
                     
                 }
                 .padding(.bottom, 1)
