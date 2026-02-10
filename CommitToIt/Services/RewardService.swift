@@ -9,7 +9,7 @@ import Foundation
 
 final class RewardService {
     
-    static func fetchAvailableRewards() async throws -> [Reward] {
+    static func fetchAvailableRewards() async throws -> [PurchaseableReward] {
         let data = try await APIClient.request(
             urlString: "/reward/redeemable-rewards",
             method: "GET"
@@ -18,12 +18,12 @@ final class RewardService {
         let decoder = Foundation.JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
 
-        let response = try decoder.decode(RewardResponse.self, from: data)
+        let response = try decoder.decode(PurchaseableRewardResponse.self, from: data)
 
         return response.data ?? []
     }
     
-    static func fetchUserRewards(user_id: Int) async throws -> [Reward] {
+    static func fetchUserRewards(user_id: Int) async throws -> [UserReward] {
         let data = try await APIClient.request(
             urlString: "/reward/user-rewards-history?user_id=\(user_id)",
             method: "GET"
@@ -32,12 +32,14 @@ final class RewardService {
         let decoder = Foundation.JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         
-        let response = try decoder.decode(RewardResponse.self, from: data)
+        let response = try decoder.decode(UserRewardResponse.self, from: data)
         
-        return response.data ?? []
+        
+        
+        return response.data
     }
     
-    static func purchaseAvailableReward(reward_id: Int) async throws -> Bool {
+    static func purchaseAvailableReward(reward_id: Int) async throws -> [UserReward] {
         let body = RewardRequest(user_id: AppState.shared.user_id, reward_id: reward_id)
         let encodedBody = try JSONEncoder().encode(body)
         
@@ -50,13 +52,13 @@ final class RewardService {
         let decoder = Foundation.JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         
-        let response = try decoder.decode(RewardResponse.self, from: data)
+        let response = try decoder.decode(UserRewardResponse.self, from: data)
         
-        return response.status == "OK" ? true : false
+        return response.data
     }
     
-    static func redeemAvailableReward(reward_id: Int) async throws -> Bool {
-        let body = RewardRequest(user_id: AppState.shared.user_id, reward_id: reward_id)
+    static func redeemAvailableReward(user_reward_id: Int) async throws -> Bool {
+        let body = RedeemRewardRequest(user_id: AppState.shared.user_id, user_reward_id: user_reward_id)
         let encodedBody = try JSONEncoder().encode(body)
         
         let data = try await APIClient.request(
@@ -68,7 +70,7 @@ final class RewardService {
         let decoder = Foundation.JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         
-        let response = try decoder.decode(RewardResponse.self, from: data)
+        let response = try decoder.decode(UserRewardResponse.self, from: data)
         
         return response.status == "OK" ? true : false
     }

@@ -6,8 +6,6 @@ struct RewardsView: View {
     // Switch to global isLoading
     @State private var isLoading = false
     @State private var errorMessage: String?
-    @State private var success: Bool = false
-    @State private var rewardClicked: Int = -1
 
     @Environment(\.colorScheme) private var colorScheme
 
@@ -52,97 +50,10 @@ struct RewardsView: View {
         }
         .padding()
     }
-
-    // Reward Card
-    func rewardCard(reward: Reward) -> some View {
-        HStack {
-            VStack {
-                Image(systemName: reward.icon)
-                    .font(.system(size: 25))
-            }
-            .frame(width: 30, height: 30)
-            .padding(10)
-            .background(.accent.opacity(0.4))
-            .cornerRadius(10)
-
-            VStack(alignment: .leading) {
-                
-                Text(reward.title)
-                    .font(.headline)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-                
-                Text(reward.description)
-                    .font(.footnote)
-                    .lineLimit(2)
-                    .truncationMode(.tail)
-            }
-            .padding(.leading, 5)
-            .padding(.trailing, 10)
-
-            Spacer()
-
-            Button {
-                success = true
-                rewardClicked = reward.id
-                
-                purchaseReward(reward: reward)
-            } label: {
-                ZStack {
-                    if (success && rewardClicked == reward.id) {
-                        HStack {
-                            Image(systemName: "checkmark")
-                                .foregroundColor(invertTheme())
-                        }
-                        .transition(.opacity.combined(with: .scale))
-                        .padding(6)
-                        .padding(.horizontal, 20)
-                        .background(.accent)
-                        .cornerRadius(10)
-                    }
-                    else {
-                        HStack {
-                            Text("\(reward.cost)")
-                                .foregroundColor(invertTheme())
-                            Image(systemName: "star.fill")
-                                .foregroundColor(invertTheme())
-                        }
-                        .transition(.opacity.combined(with: .scale))
-                        .padding(6)
-                        .background(.accent.opacity(0.4))
-                        .cornerRadius(10)
-                    }
-                }
-                .animation(.easeInOut(duration: 0.35), value: success)
-                
-            }
-            
-        }
-        .padding(10)
-    }
-
-    func invertTheme() -> Color {
-        colorScheme == .dark ? .white : .black
-    }
-    
-    func purchaseReward(reward: Reward) {
-        Task {
-            do {
-                try? await Task.sleep(nanoseconds: 1_000_000_000)
-//                let response = try await RewardService.purchaseAvailableReward(reward_id: reward.id)
-//
-//                if response {
-//                    appState.addUserReward(reward)
-//                }
-                success = false
-                rewardClicked = -1
-            }
-        }
-    }
 }
 
 struct RewardCardView : View {
-    let reward: Reward
+    let reward: PurchaseableReward
     @State private var success: Bool = false
     @State private var fail: Bool = false
     
@@ -223,19 +134,17 @@ struct RewardCardView : View {
         .padding(10)
     }
     
-    func purchaseReward(reward: Reward) {
+    func purchaseReward(reward: PurchaseableReward) {
         Task {
             do {
                 let response = try await RewardService.purchaseAvailableReward(reward_id: reward.id)
                 
-                if !response {
-                    return
-                }
+                let syncStats = try await UserService.fetchUserStats(user_id: AppState.shared.user_id)
+
+                AppState.shared.addUserReward(response[0])
+                AppState.shared.setUserStats(syncStats)
                 
                 success = true
-                
-                AppState.shared.addUserReward(reward)
-        
                 
                 try? await Task.sleep(nanoseconds: 1_000_000_000)
                  

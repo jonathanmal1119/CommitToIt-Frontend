@@ -16,11 +16,11 @@ final class AppState: ObservableObject {
     @Published var selectedTab: Tabs = .login
     
     // MARK: - Server Data
-    @Published private(set) var redeemable_rewards: [Reward] = []
+    @Published private(set) var redeemable_rewards: [PurchaseableReward] = []
     
     // MARK: - Core User Data
     @Published private(set) var user_tasks: [TaskItem] = []
-    @Published private(set) var user_rewards: [Reward] = []
+    @Published private(set) var user_rewards: [UserReward] = []
     
     // MARK: - History
     //@Published private(set) var user_redeemed_rewards: [Reward] = []
@@ -41,12 +41,12 @@ final class AppState: ObservableObject {
     init(load_mock_data: Bool) {
         
         self.redeemable_rewards = [
-            Reward(id: 1, title: "Test Reward", description: "Mock Data", cost: 100, icon: "mug.fill"),
-            Reward(id: 2, title: "Test Reward", description: "Mock Data", cost: 100, icon: "fork.knife"),
-            Reward(id: 3, title: "Test Reward", description: "Mock Data", cost: 100, icon: "gamecontroller.fill"),
-            Reward(id: 4, title: "Test Reward", description: "Mock Data but this needs tio be a really long desc so i can fully test it", cost: 100, icon: "cart.badge.clock.fill"),
-            Reward(id: 5, title: "Test Reward", description: "Mock Data", cost: 100, icon: "bag.fill"),
-            Reward(id: 6, title: "Test Reward", description: "Mock Data", cost: 100, icon: "bag.fill.badge.plus")
+            PurchaseableReward(id: 1, title: "Test Reward", description: "Mock Data", cost: 100, icon: "mug.fill"),
+            PurchaseableReward(id: 2, title: "Test Reward", description: "Mock Data", cost: 100, icon: "fork.knife"),
+            PurchaseableReward(id: 3, title: "Test Reward", description: "Mock Data", cost: 100, icon: "gamecontroller.fill"),
+            PurchaseableReward(id: 4, title: "Test Reward", description: "Mock Data but this needs tio be a really long desc so i can fully test it", cost: 100, icon: "cart.badge.clock.fill"),
+            PurchaseableReward(id: 5, title: "Test Reward", description: "Mock Data", cost: 100, icon: "bag.fill"),
+            PurchaseableReward(id: 6, title: "Test Reward", description: "Mock Data", cost: 100, icon: "bag.fill.badge.plus")
         ]
         
         self.user_tasks = [
@@ -54,8 +54,8 @@ final class AppState: ObservableObject {
         ]
         
         self.user_rewards = [
-//            Reward(id: 1, title: "Free Starbucks Drink", description: "1 Free drink of your choice", cost: 100, icon: "mug.fill", earned_at: Calendar.current.date(byAdding: .day, value: -1, to: Date()), redeemed_at: Calendar.current.date(byAdding: .day, value: -1, to: Date())),
-//            Reward(id: 1, title: "Free Starbucks Drink", description: "1 Free drink of your choice", cost: 100, icon: "mug.fill", earned_at: Calendar.current.date(byAdding: .day, value: -1, to: Date()), redeemed_at: Calendar.current.date(byAdding: .day, value: -1, to: Date())),
+            UserReward(id: 1, title: "Free Starbucks Drink", description: "1 Free drink of your choice", cost: 100, icon: "mug.fill", earned_at: Calendar.current.date(byAdding: .day, value: -1, to: Date()), redeemed_at: Calendar.current.date(byAdding: .day, value: -1, to: Date())),
+            UserReward(id: 2, title: "Free Starbucks Drink", description: "1 Free drink of your choice", cost: 100, icon: "mug.fill", earned_at: Calendar.current.date(byAdding: .day, value: -1, to: Date()), redeemed_at: nil),
 //            Reward(id: 1, title: "Free Starbucks Drink", description: "1 Free drink of your choice", cost: 100, icon: "mug.fill", earned_at: Calendar.current.date(byAdding: .day, value: -1, to: Date()), redeemed_at: Calendar.current.date(byAdding: .day, value: -1, to: Date())),
         ]
         
@@ -106,11 +106,11 @@ final class AppState: ObservableObject {
     
     // Sync Functions
     
-    func setRedeemableRewards(_ rewards: [Reward]) {
+    func setRedeemableRewards(_ rewards: [PurchaseableReward]) {
         self.redeemable_rewards = rewards
     }
     
-    func setUserRewards(_ rewards: [Reward]) {
+    func setUserRewards(_ rewards: [UserReward]) {
         self.user_rewards = rewards
     }
     
@@ -142,10 +142,12 @@ final class AppState: ObservableObject {
         self.user_tasks.removeAll { $0.id == id }
     }
     
-    func addUserReward(_ reward: Reward) {
+    func addUserReward(_ reward: UserReward) {
         self.user_rewards.insert(reward, at: 0)
         self.user_stats.point_balance -= reward.cost
         self.user_stats.redeemed_rewards += 1
+        
+        print(user_rewards)
     }
     
     func removeUserReward(id: Int) {
@@ -154,6 +156,14 @@ final class AppState: ObservableObject {
     
     func addCompletedTask(_ task: TaskItem) {
         self.user_completed_tasks.insert(task, at: 0)
+    }
+    
+    func markRewardAsRedeemed(rewardId: Int) {
+        if let index = self.user_rewards.firstIndex(where: { $0.id == rewardId }) {
+            self.user_rewards[index].redeemed_at = Date()
+        } else {
+            print("markRewardAsRedeemed: reward with id \(rewardId) not found")
+        }
     }
     
 }

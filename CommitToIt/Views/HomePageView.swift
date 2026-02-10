@@ -49,7 +49,7 @@ struct HomePageView: View {
                 .cornerRadius(15)
                 .shadow(radius: 10)
                 
-                VStack {
+                ZStack{
                     ProgressBarView()
                 }
                 .padding(10)
@@ -57,6 +57,7 @@ struct HomePageView: View {
                 .cornerRadius(15)
                 .shadow(radius: 10)
 
+                
                 // MARK: Today's Tasks
                 VStack() {
                     HStack {
@@ -88,11 +89,10 @@ struct HomePageView: View {
                 .background(.background)
                 .cornerRadius(15)
                 .shadow(radius: 10)
-                
-                
+ 
                 
                 // MARK: Available Rewards
-                if appState.user_rewards.count > 0 {
+                if appState.user_rewards.filter({ $0.redeemed_at == nil }).count > 0 {
                     VStack() {
                         
                         HStack {
@@ -100,7 +100,7 @@ struct HomePageView: View {
                                 .foregroundColor(.accent)
                                 .font(.system(size: 25))
                         
-                            Text("\(appState.user_rewards.count) Available Rewards")
+                            Text("\(appState.user_rewards.filter({ $0.redeemed_at == nil }).count) Available Rewards")
                                 .font(.title2.bold())
                                 .frame(maxWidth: .infinity, alignment: .leading)
                             
@@ -124,7 +124,7 @@ struct HomePageView: View {
                     .background(.background)
                     .cornerRadius(15)
                     .shadow(radius: 10)
-                    .frame(maxHeight: 170)
+                    .frame(maxHeight: 160)
                 }
             }
             .padding(20)

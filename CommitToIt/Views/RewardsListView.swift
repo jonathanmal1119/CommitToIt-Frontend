@@ -13,7 +13,7 @@ struct RewardsListView: View {
     @Environment(\.colorScheme) private var colorScheme
     
     var showAdvancedInfo: Bool = false
-    var showClaimedRewards: Bool = false
+    var showUnclaimedRewards: Bool = false
         
     var body: some View {
         ZStack {
@@ -29,18 +29,30 @@ struct RewardsListView: View {
             }
             
             List {
-                ForEach(appState.user_rewards.filter { if (showClaimedRewards) { $0.redeemed_at != nil }) { reward in
-                    redeemedCard(reward: reward)
+                ForEach(appState.user_rewards.filter { reward in
+                    showUnclaimedRewards ? (reward.redeemed_at == nil) : true
+                }) { reward in
+                   RewardCard(reward: reward, showAdvancedInfo: showAdvancedInfo)
                 }
+                    
+                    
             }
             .listStyle(.plain)
         }
     }
+}
+
+struct RewardCard: View {
+    @Environment(\.colorScheme) private var colorScheme
     
-    func redeemedCard(reward: Reward) -> some View {
+    let reward: UserReward
+    var showAdvancedInfo: Bool
+    @State private var success: Bool = false
+    @State private var failed: Bool = false
+    
+    var body: some View {
         VStack {
             HStack {
-                
                 VStack(alignment: .leading) {
                     
                     Text(reward.title)
@@ -52,9 +64,7 @@ struct RewardsListView: View {
                         .font(.footnote)
                         .lineLimit(1)
                         .truncationMode(.tail)
-                    
-                    
-                    
+
                     if let earnedAt = reward.earned_at, showAdvancedInfo{
                         Spacer()
                         
@@ -64,6 +74,7 @@ struct RewardsListView: View {
                 .padding([.leading], 5)
 
                 Spacer()
+                
                 ZStack {
                     if reward.redeemed_at != nil {
                        HStack {
@@ -75,17 +86,56 @@ struct RewardsListView: View {
                        .cornerRadius(10)
                     }
                     else {
-                        Button {
-                            redeemReward(reward: reward)
-                        } label: {
-                            HStack {
-                                Text("Redeem")
-                                    .foregroundColor(invertTheme())
+                        ZStack {
+                            if (success) {
+                                HStack {
+                                    Image(systemName: "checkmark")
+                                        .foregroundColor(invertTheme())
+                                }
+                                .padding(8)
+                                .padding(.horizontal, 20)
+                                .background(.accent)
+                                .cornerRadius(10)
                             }
-                            .padding(6)
-                            .background(.accent.opacity(0.4))
-                            .cornerRadius(10)
+                            else if (failed) {
+                                HStack {
+                                    Image(systemName: "xmark")
+                                        .foregroundColor(invertTheme())
+                                }
+                                .padding(8)
+                                .padding(.horizontal, 20)
+                                .background(.red)
+                                .cornerRadius(10)
+                            }
+                            else {
+                                if reward.redeemed_at != nil {
+                                    HStack {
+                                        Text("Claimed")
+                                            .foregroundColor(invertTheme())
+                                    }
+                                    .padding(6)
+                                    .background(.accent.opacity(0.4))
+                                    .cornerRadius(10)
+                                }
+                                else {
+                                    Button {
+                                        redeemReward(reward: reward)
+                                    } label: {
+                                        HStack {
+                                            Text("Redeem")
+                                                .foregroundColor(invertTheme())
+                                        }
+                                        .padding(6)
+                                        .background(.accent.opacity(0.4))
+                                        .cornerRadius(10)
+                                    }
+                                }
+                                
+                            }
                         }
+                        .transition(.opacity.combined(with: .scale))
+                        .animation(.easeInOut(duration: 0.35), value: success)
+                        .animation(.easeInOut(duration: 0.35), value: failed)
                     }
                 }
             }
@@ -96,27 +146,39 @@ struct RewardsListView: View {
         colorScheme == .dark ? .white : .black
     }
     
-    func redeemReward(reward: Reward) {
+    func redeemReward(reward: UserReward) {
         Task {
             do {
-                let response = try await RewardService.redeemAvailableReward(reward_id: reward.id)
+                let response = try await RewardService.redeemAvailableReward(user_reward_id: reward.id)
                 
-                if response {
-                    //TODO: Update timestamp and switch UI to update
-                    
+                if !response {
+                    return
                 }
                 
-                let syncStats = try await UserService.fetchUserStats(user_id: appState.user_id)
+                success = true
                 
-                appState.setUserStats(syncStats)
+                AppState.shared.markRewardAsRedeemed(rewardId: reward.id)
+
+                let syncStats = try await UserService.fetchUserStats(user_id: AppState.shared.user_id)
+                
+                AppState.shared.setUserStats(syncStats)
+                
+                try? await Task.sleep(nanoseconds: 1_000_000_000)
+                
+                success = false
+                
             } catch {
+                failed = true
+                try? await Task.sleep(nanoseconds: 1_000_000_000)
+                failed = false
                 print("[RedeemReward] Error: \(error.localizedDescription)")
             }
         }
     }
 }
 
-#Preview("RewardsListView") {
+#Preview {
     RewardsListView(showAdvancedInfo: true)
         .environmentObject(AppState.shared)
 }
+

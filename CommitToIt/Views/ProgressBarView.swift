@@ -4,7 +4,7 @@ struct ProgressBarView: View {
     @EnvironmentObject var appState: AppState
     
     // Change to account for inf
-    private let total: Int = 100
+    private let total: Int = 400
 
     var progress: Double {
         guard total > 0 else { return 0 }

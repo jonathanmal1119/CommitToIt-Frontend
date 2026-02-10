@@ -206,6 +206,7 @@ struct TaskListView: View {
                 }
                 
                 appState.removeTask(id: task.id)
+                appState.addCompletedTask(task)
                 
                 let syncStats = try await UserService.fetchUserStats(user_id: appState.user_id)
                 

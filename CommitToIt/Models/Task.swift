@@ -46,7 +46,7 @@ struct TaskItem: Codable, Identifiable {
     let title: String
     let description: String?
     let point_value: Int
-    let completed_at: Date?
+    var completed_at: Date?
     let filter: String?
     
     enum CodingKeys: String, CodingKey {
