@@ -63,7 +63,7 @@ struct HistoryView: View {
             Group {
                 switch tab {
                     case .rewards:
-                        RewardsListView(showAdvancedInfo: true)
+                        RewardsListView(showAdvancedInfo: true, showUnclaimedRewards: true)
                     case .tasks:
                         TaskHistoryView()
                 }

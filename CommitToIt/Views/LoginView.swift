@@ -10,10 +10,7 @@ import SwiftUI
 struct LoginView: View {
     @EnvironmentObject var appState: AppState
     
-    @State private var password = "tttttt"
-    @State private var email = "t@t.com"
-    
-    @State private var errorDisplay: Bool = false
+    @State private var tab : StartupTabs = .signup
     
     var body: some View {
         ZStack {
@@ -29,7 +26,6 @@ struct LoginView: View {
             VStack(spacing: 10) {
                 VStack {
                     ZStack {
-
                         Text("Commit To It")
                             .font(.system(size: 40)).bold()
                             .foregroundStyle(.primary)
@@ -43,79 +39,59 @@ struct LoginView: View {
                     .padding(.horizontal, 20)
                 }
                 
-                VStack (alignment: .leading) {
-                    
-                    Text("Sign In")
-                        .font(.largeTitle.bold())
-                        .frame(maxWidth: .infinity, alignment: .center)
-                        .padding(.horizontal,10)
-                        .padding(.bottom, 50)
-                        .padding(.top, 20)
-                        .background(.background)
-                    
-                    ZStack (alignment: .topLeading) {
-                        TextField("Email", text: $email)
-                            .keyboardType(.emailAddress)
-                            .autocapitalization(.none)
-                            .textFieldStyle(.roundedBorder)
-                            .border(.red, width: errorDisplay ? 1 : 0)
-                            .animation(.easeInOut(duration: 0.1), value: errorDisplay)
-                            .padding(.top, 7)
-                        
-                        
-                        Text("Email")
-                            .font(.caption)
-                            .padding([.leading, .trailing], 4)
-                            .background(.background)
-                            .padding(.leading, 5)
-                    }
-                    .padding(.horizontal, 10)
-                    
-                    
-                    ZStack (alignment: .topLeading) {
-                        SecureField("Password", text: $password)
-                            .textFieldStyle(.roundedBorder)
-                            .border(.red, width: errorDisplay ? 1 : 0)
-                            .animation(.easeInOut(duration: 0.1), value: errorDisplay)
-                            .padding(.top, 7)
-                        
-                        
-                        Text("Password")
-                            .font(.caption)
-                            .padding([.leading, .trailing], 4)
-                            .background(.background)
-                            .padding(.leading, 5)
-                        
-                    }
-                    .padding(.horizontal, 10)
-                    .padding(.top,20)
-                    
-                    Button() {
-                        login()
-                    } label: {
-                        ZStack {
-                            UnevenRoundedRectangle(cornerRadii: .init(
-                                topLeading: 10,
-                                bottomLeading: 10,
-                                bottomTrailing: 10,
-                                topTrailing: 10
-                            ))
-                            //.fill(.accent.opacity(0.8))
-                            .fill(errorDisplay ? .red : Color(.systemBlue))
-                            .animation(.easeInOut(duration: 0.1), value: errorDisplay)
-                            .frame(maxHeight: 50)
-                            
-                            Text("Sign In")
-                                .foregroundStyle(.white)
-                                .font(.title3.bold())
+                VStack {
+                    HStack (spacing: 20) {
+                        Button {
+                            tab = .login
+                        } label: {
+                            VStack {
+                                Text("Login")
+                                    .font(.headline)
+                                    .foregroundColor(.primary.opacity(tab == .login ? 1 : 0.3))
+                                    .padding(.horizontal, 10)
+                                    .cornerRadius(10)
+                                    .padding(.vertical, 5)
+                                    .animation(.easeInOut, value: 0.6)
+                                    
+                                
+                                Color.primary
+                                    .opacity(tab == .login ? 1 : 0.3)
+                                    .frame(maxWidth: .infinity, maxHeight: 1)
+                                    .animation(.easeInOut, value: 0.6)
+                            }
                         }
                         
+                        Button {
+                            tab = .signup
+                        } label: {
+                            VStack {
+                                Text("Sign Up")
+                                    .font(.headline)
+                                    .foregroundColor(.primary.opacity(tab == .signup ? 1 : 0.3))
+                                    .padding(.horizontal, 10)
+                                    .cornerRadius(10)
+                                    .padding(.vertical, 5)
+                                    .animation(.easeInOut, value: 0.6)
+                                
+                                Color.primary
+                                    .opacity(tab == .signup ? 1 : 0.3)
+                                    .frame(maxWidth: .infinity, maxHeight: 1)
+                                    .animation(.easeInOut, value: 0.6)
+                            }
+                        }
                     }
                     .padding(.horizontal, 10)
-                    .padding(.vertical, 20)
-                    .buttonStyle(.borderless)
+                    .padding(.vertical, 10)
+                    .padding(.bottom, 10)
                     
-                    .frame(maxWidth: .infinity)
+                    Group {
+                        switch tab {
+                            case .login:
+                                LoginPageView()
+                            case .signup:
+                                SignUpPageView()
+                            }
+                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .init(horizontal: .trailing, vertical: .top))
                 .padding(10)
@@ -124,26 +100,8 @@ struct LoginView: View {
                 .shadow(radius: 10)
                 .padding(20)
                 .padding(.bottom, 50)
-            }
-        }
-    }
-    
-    private func login() {
-        Task {
-            do {
-                try await AuthService.login(email: email, password: password)
                 
-                if AuthManager.shared.isAuthenticated {
-                    appState.selectedTab = .home
-                    await syncHomeData()
-                }
-            } catch {
-                //print("[Sign In Error] \(error.localizedDescription)")
-                errorDisplay = true
-                try await Task.sleep(nanoseconds: 1_000_000_000)
-                errorDisplay = false
             }
-            
         }
     }
     
@@ -205,6 +163,237 @@ struct LoginView: View {
         }
     }
     
+}
+
+struct LoginPageView: View {
+    @State private var login_password = "tttttt"
+    @State private var login_email = "t@t.com"
+        
+    @State private var errorDisplay: Bool = false
+        
+    var body: some View {
+        VStack (spacing: 20) {
+            ZStack (alignment: .topLeading) {
+                TextField("Email", text: $login_email)
+                    .keyboardType(.emailAddress)
+                    .autocapitalization(.none)
+                    .textFieldStyle(.roundedBorder)
+                    .border(.red, width: errorDisplay ? 1 : 0)
+                    .animation(.easeInOut(duration: 0.1), value: errorDisplay)
+                    .padding(.top, 7)
+                    
+                Text("Email")
+                    .font(.caption)
+                    .padding([.leading, .trailing], 4)
+                    .background(.background)
+                    .padding(.leading, 5)
+            }
+            .padding(.horizontal, 10)
+                
+                
+            ZStack (alignment: .topLeading) {
+                SecureField("Password", text: $login_password)
+                    .textFieldStyle(.roundedBorder)
+                    .border(.red, width: errorDisplay ? 1 : 0)
+                    .animation(.easeInOut(duration: 0.1), value: errorDisplay)
+                    .padding(.top, 7)
+
+                Text("Password")
+                    .font(.caption)
+                    .padding([.leading, .trailing], 4)
+                    .background(.background)
+                    .padding(.leading, 5)
+                    
+            }
+            .padding(.horizontal, 10)
+                
+            Button() {
+                login()
+            } label: {
+                ZStack {
+                    UnevenRoundedRectangle(cornerRadii: .init(
+                        topLeading: 10,
+                        bottomLeading: 10,
+                        bottomTrailing: 10,
+                        topTrailing: 10
+                    ))
+                    .fill(errorDisplay ? .red : .blue)
+                    .animation(.easeInOut(duration: 0.1), value: errorDisplay)
+                    .frame(maxHeight: 50)
+                        
+                    Text("Login")
+                        .foregroundStyle(.white)
+                        .font(.title3.bold())
+                }
+                    
+            }
+            .padding(10)
+            .buttonStyle(.borderless)
+            .frame(maxWidth: .infinity)
+        }
+    }
+        
+    func login() {
+        Task {
+            do {
+                try await AuthService.login(email: login_email, password: login_password)
+            } catch {
+                errorDisplay = true
+                try await Task.sleep(nanoseconds: 1_000_000_000)
+                errorDisplay = false
+            }
+        }
+    }
+}
+
+struct SignUpPageView: View {
+    
+    @State private var signup_password = ""
+    @State private var signup_email = ""
+    @State private var signup_username = ""
+    
+    @State private var errorDisplay: Bool = false
+    @State private var errorMessage: String = ""
+    
+    var body: some View {
+        VStack (spacing: 20) {
+            ZStack (alignment: .topLeading) {
+                TextField("Username", text: $signup_username)
+                    .keyboardType(.emailAddress)
+                    .autocapitalization(.none)
+                    .textFieldStyle(.roundedBorder)
+                    .border(.red, width: errorDisplay ? 1 : 0)
+                    .animation(.easeInOut(duration: 0.1), value: errorDisplay)
+                    .padding(.top, 7)
+                
+                Text("Username")
+                    .font(.caption)
+                    .padding([.leading, .trailing], 4)
+                    .background(.background)
+                    .padding(.leading, 5)
+            }
+            .padding(.horizontal, 10)
+        
+            ZStack (alignment: .topLeading) {
+                TextField("Email", text: $signup_email)
+                    .keyboardType(.emailAddress)
+                    .autocapitalization(.none)
+                    .textFieldStyle(.roundedBorder)
+                    .border(.red, width: errorDisplay ? 1 : 0)
+                    .animation(.easeInOut(duration: 0.1), value: errorDisplay)
+                    .padding(.top, 7)
+        
+        
+                Text("Email")
+                    .font(.caption)
+                    .padding([.leading, .trailing], 4)
+                    .background(.background)
+                    .padding(.leading, 5)
+            }
+            .padding(.horizontal, 10)
+            
+            
+            ZStack (alignment: .topLeading) {
+                
+                VStack (alignment: .leading) {
+                    SecureField("Password", text: $signup_password)
+                        .textFieldStyle(.roundedBorder)
+                        .border(.red, width: errorDisplay ? 1 : 0)
+                        .animation(.easeInOut(duration: 0.1), value: errorDisplay)
+                        .padding(.vertical, 7)
+                    
+                    Text(errorMessage)
+                        .padding(.leading, 7)
+                        
+                }
+                
+                Text("Password")
+                    .font(.caption)
+                    .padding([.leading, .trailing], 4)
+                    .background(.background)
+                    .padding(.leading, 5)
+                
+            }
+            .padding(.horizontal, 10)
+            
+            
+        
+            Button() {
+                signup(user_name: signup_username, password: signup_password, email: signup_email)
+            } label: {
+                ZStack {
+                    UnevenRoundedRectangle(cornerRadii: .init(
+                        topLeading: 10,
+                        bottomLeading: 10,
+                        bottomTrailing: 10,
+                        topTrailing: 10
+                    ))
+                    .fill(errorDisplay ? .red : .blue)
+                    .animation(.easeInOut(duration: 0.1), value: errorDisplay)
+                    .frame(maxHeight: 50)
+                    
+                    Text("Sign Up")
+                        .foregroundStyle(.white)
+                        .font(.title3.bold())
+                }
+                
+            }
+            .padding(10)
+            .padding(.top, -10)
+            .buttonStyle(.borderless)
+            .frame(maxWidth: .infinity)
+        }
+    }
+    
+    func signup(user_name: String, password: String, email: String) {
+        
+        
+        
+        Task {
+            do {
+                guard !user_name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+                    errorMessage = "Username cannot be empty"
+                    errorDisplay = true
+                    try await Task.sleep(nanoseconds: 1_000_000_000)
+                    errorDisplay = false
+                    errorMessage = ""
+                    return
+                }
+                
+                guard email.range(
+                    of: #"^[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"#,
+                    options: .regularExpression
+                ) != nil else {
+                    errorMessage = "Invalid email address"
+                    errorDisplay = true
+                    try await Task.sleep(nanoseconds: 1_000_000_000)
+                    errorDisplay = false
+                    errorMessage = ""
+                    return
+                }
+                
+                guard password.count >= 6 else {
+                    errorMessage = "Password must be at least 6 characters"
+                    errorDisplay = true
+                    try await Task.sleep(nanoseconds: 1_000_000_000)
+                    errorDisplay = false
+                    errorMessage = ""
+                    return
+                }
+                
+                try await AuthService.signup(email: signup_email, password: signup_password, username: signup_username)
+            } catch {
+                print("[SignUpError] \(error)")
+                
+                errorDisplay = true
+                errorMessage = "Error Signing Up. Try again later"
+                try await Task.sleep(nanoseconds: 1_000_000_000)
+                errorDisplay = false
+                errorMessage = ""
+            }
+            
+        }
+    }
 }
 
 #Preview {

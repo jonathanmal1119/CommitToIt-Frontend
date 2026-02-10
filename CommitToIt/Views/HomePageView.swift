@@ -118,7 +118,7 @@ struct HomePageView: View {
                         
                         Color.primary.opacity(0.1).frame(height: 1)
                         
-                        RewardsListView(showAdvancedInfo: false)
+                        RewardsListView(showAdvancedInfo: false, showUnclaimedRewards: true)
                             .padding(.top, -8)
                     }
                     .background(.background)

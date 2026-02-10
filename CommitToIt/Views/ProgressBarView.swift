@@ -3,7 +3,6 @@ import SwiftUI
 struct ProgressBarView: View {
     @EnvironmentObject var appState: AppState
     
-    // Change to account for inf
     private let total: Int = 400
 
     var progress: Double {
@@ -94,7 +93,7 @@ struct ProgressBarView: View {
             }
         }
         .task {
-            syncProgressBar()
+            //syncProgressBar()
         }
     }
     

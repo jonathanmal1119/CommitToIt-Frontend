@@ -20,3 +20,8 @@ enum HistoryTabs: Hashable {
     case rewards
     case tasks
 }
+
+enum StartupTabs: Hashable {
+    case login
+    case signup
+}

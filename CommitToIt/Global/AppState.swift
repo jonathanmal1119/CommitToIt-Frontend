@@ -41,21 +41,21 @@ final class AppState: ObservableObject {
     init(load_mock_data: Bool) {
         
         self.redeemable_rewards = [
-            PurchaseableReward(id: 1, title: "Test Reward", description: "Mock Data", cost: 100, icon: "mug.fill"),
-            PurchaseableReward(id: 2, title: "Test Reward", description: "Mock Data", cost: 100, icon: "fork.knife"),
-            PurchaseableReward(id: 3, title: "Test Reward", description: "Mock Data", cost: 100, icon: "gamecontroller.fill"),
-            PurchaseableReward(id: 4, title: "Test Reward", description: "Mock Data but this needs tio be a really long desc so i can fully test it", cost: 100, icon: "cart.badge.clock.fill"),
-            PurchaseableReward(id: 5, title: "Test Reward", description: "Mock Data", cost: 100, icon: "bag.fill"),
-            PurchaseableReward(id: 6, title: "Test Reward", description: "Mock Data", cost: 100, icon: "bag.fill.badge.plus")
+//            PurchaseableReward(id: 1, title: "Test Reward", description: "Mock Data", cost: 100, icon: "mug.fill"),
+//            PurchaseableReward(id: 2, title: "Test Reward", description: "Mock Data", cost: 100, icon: "fork.knife"),
+//            PurchaseableReward(id: 3, title: "Test Reward", description: "Mock Data", cost: 100, icon: "gamecontroller.fill"),
+//            PurchaseableReward(id: 4, title: "Test Reward", description: "Mock Data but this needs tio be a really long desc so i can fully test it", cost: 100, icon: "cart.badge.clock.fill"),
+//            PurchaseableReward(id: 5, title: "Test Reward", description: "Mock Data", cost: 100, icon: "bag.fill"),
+//            PurchaseableReward(id: 6, title: "Test Reward", description: "Mock Data", cost: 100, icon: "bag.fill.badge.plus")
         ]
         
         self.user_tasks = [
-            TaskItem(id: 0, title: "Add eUser Logins", description: "Preview description buddy",point_value: 10, completed_at: Calendar.current.date(byAdding: .day, value: -1, to: Date()), filter: "pending"),
+//            TaskItem(id: 0, title: "Add eUser Logins", description: "Preview description buddy",point_value: 10, completed_at: Calendar.current.date(byAdding: .day, value: -1, to: Date()), filter: "pending"),
         ]
         
         self.user_rewards = [
-            UserReward(id: 1, title: "Free Starbucks Drink", description: "1 Free drink of your choice", cost: 100, icon: "mug.fill", earned_at: Calendar.current.date(byAdding: .day, value: -1, to: Date()), redeemed_at: Calendar.current.date(byAdding: .day, value: -1, to: Date())),
-            UserReward(id: 2, title: "Free Starbucks Drink", description: "1 Free drink of your choice", cost: 100, icon: "mug.fill", earned_at: Calendar.current.date(byAdding: .day, value: -1, to: Date()), redeemed_at: nil),
+//            UserReward(id: 1, title: "Free Starbucks Drink", description: "1 Free drink of your choice", cost: 100, icon: "mug.fill", earned_at: Calendar.current.date(byAdding: .day, value: -1, to: Date()), redeemed_at: Calendar.current.date(byAdding: .day, value: -1, to: Date())),
+//            UserReward(id: 2, title: "Free Starbucks Drink", description: "1 Free drink of your choice", cost: 100, icon: "mug.fill", earned_at: Calendar.current.date(byAdding: .day, value: -1, to: Date()), redeemed_at: nil),
 //            Reward(id: 1, title: "Free Starbucks Drink", description: "1 Free drink of your choice", cost: 100, icon: "mug.fill", earned_at: Calendar.current.date(byAdding: .day, value: -1, to: Date()), redeemed_at: Calendar.current.date(byAdding: .day, value: -1, to: Date())),
         ]
         

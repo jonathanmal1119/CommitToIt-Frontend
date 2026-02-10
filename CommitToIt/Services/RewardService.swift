@@ -34,8 +34,6 @@ final class RewardService {
         
         let response = try decoder.decode(UserRewardResponse.self, from: data)
         
-        
-        
         return response.data
     }
     
