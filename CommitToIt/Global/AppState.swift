@@ -11,6 +11,7 @@ import Combine
 @MainActor
 final class AppState: ObservableObject {
     static let shared = AppState(load_mock_data: false)
+    private let keychain = KeychainService()
     
     // MARK: - Current App Tab
     @Published var selectedTab: Tabs = .login
@@ -50,7 +51,7 @@ final class AppState: ObservableObject {
         ]
         
         self.user_tasks = [
-//            TaskItem(id: 0, title: "Add eUser Logins", description: "Preview description buddy",point_value: 10, completed_at: Calendar.current.date(byAdding: .day, value: -1, to: Date()), filter: "pending"),
+            TaskItem(id: 0, title: "Add eUser Logins", description: "Preview description buddy",point_value: 10, completed_at: Calendar.current.date(byAdding: .day, value: -1, to: Date()), filter: "pending"),
         ]
         
         self.user_rewards = [
@@ -102,6 +103,11 @@ final class AppState: ObservableObject {
     
     func syncAuthState() {
         isAuthenticated = AuthManager.shared.isAuthenticated
+        
+        if isAuthenticated {
+            let retrieved_key = keychain.get("user_id")
+            self.user_id = Int(retrieved_key ?? "") ?? -1
+        }
     }
     
     // Sync Functions
@@ -124,6 +130,8 @@ final class AppState: ObservableObject {
     
     func setUserId(_ userID: Int) {
         self.user_id = userID
+        
+        keychain.set(String(self.user_id), forkey: "user_id")
     }
     
     func setUserInfo(_ userInfo: UserInfo) {

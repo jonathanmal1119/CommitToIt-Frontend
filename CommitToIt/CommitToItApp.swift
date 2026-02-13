@@ -16,8 +16,7 @@ struct CommitToItApp: App {
             ContentView()
                 .environmentObject(appState)
                 .task {
-                    //appState.syncAuthState()
-                    //await runStartUpSync()
+                    await runStartUpSync()
                 }
         }
     }
@@ -31,49 +30,60 @@ struct CommitToItApp: App {
             }
             
             print("Authed")
+            print(appState.user_id)
 
             appState.selectedTab = .home
                 
-            try await fetchTasks()
             try await fetchRewards()
-            //try await fetchUser()
+            try await fetchTasks()
+            try await fetchUserData()
         }
         catch {
             print("Error Sync Failed")
         }
     }
-    
-    func fetchTasks() async throws {
-        do {
-            let taskResponse = try await TaskService.fetchUserTasks()
 
-            AppState.shared.setUserTasks(taskResponse)
-        } catch {
-            print("[FetchTasks] \(error.localizedDescription)")
-        }
-
-    }
-    
     func fetchRewards() async throws {
         do {
             let availableRewardsResponse = try await RewardService.fetchAvailableRewards()
 
-            appState.setRedeemableRewards(availableRewardsResponse)
+            AppState.shared.setRedeemableRewards(availableRewardsResponse)
         } catch {
-            print("[FetchAvailableRewards] \(error.localizedDescription)")
+            print("[FetchAvailableRewards] \(error)")
         }
         
         do {
-            let userRewardsResponse = try await RewardService.fetchUserRewards(user_id: appState.user_id)
-            
-            appState.setUserRewards(userRewardsResponse)
+            let userRewardsResponse = try await RewardService.fetchUserRewards(user_id: AppState.shared.user_id)
+
+            AppState.shared.setUserRewards(userRewardsResponse)
         } catch {
             print("[FetchUserRewards] \(error.localizedDescription)")
         }
 
     }
-    
-    
-    
-    
+
+    func fetchTasks() async throws {
+        do {
+            let taskResponse = try await TaskService.fetchUserTasks()
+
+            AppState.shared.setUserTasks(taskResponse)
+            
+            let completedTasksResponse = try await TaskService.fetchCompletedUserTasks()
+            
+            AppState.shared.setUserCompletedTasks(completedTasksResponse)
+        } catch {
+            print("[FetchTasks] \(error.localizedDescription)")
+        }
+
+    }
+
+    func fetchUserData() async throws {
+        do {
+            let userResponse = try await UserService.fetchUserStats(user_id: AppState.shared.user_id)
+            
+            AppState.shared.setUserStats(userResponse)
+        } catch {
+            print("[FetchUserStats] \(error.localizedDescription)")
+        }
+    }
 }
