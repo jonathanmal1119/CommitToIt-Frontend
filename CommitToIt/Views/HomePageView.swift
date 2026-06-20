@@ -124,7 +124,7 @@ struct HomePageView: View {
                     .background(.background)
                     .cornerRadius(15)
                     .shadow(radius: 10)
-                    .frame(maxHeight: 160)
+                    .frame(maxHeight: 160) 
                 }
             }
             .padding(20)

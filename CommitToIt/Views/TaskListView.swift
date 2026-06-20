@@ -60,20 +60,17 @@ struct TaskListView: View {
                                         }.tint(.accent)
                                     }
                                     .onTapGesture {
-                                        show_task_info = true
                                         shown_task = task
+                                        show_task_info = true
                                     }
                             }
                             .onDelete(perform: deleteTask)
                             .contentShape(Rectangle())
-                            .sheet(isPresented: $show_task_info) {
-                                if let task = shown_task {
-                                    showTaskInfoSheet(task: task)
-                                }
-                            }
-                            
                         }
                         .listStyle(.plain)
+                        .sheet(item: $shown_task) { task in
+                            showTaskInfoSheet(task: task)
+                        }
                     }
                 }
             }
@@ -220,7 +217,7 @@ struct TaskListView: View {
     private func addTask() {
         Task {
             do {
-                let result = try await TaskService.createTask(title: new_task_name, description: new_task_desc, point_value: new_task_point_amt)
+                let result = try await TaskService.createTask(title: new_task_name, description: new_task_desc, point_value: new_task_point_amt, due_date: Date())
 
                 appState.addTask(result[0])
                 
@@ -240,12 +237,13 @@ struct TaskListView: View {
 struct showTaskInfoSheet: View {
     @Environment(\.dismiss) private var dismiss
     
-    @State var task: TaskItem
+    var task: TaskItem
     
     @State var isEditing: Bool = false
     
     @State private var edited_task_name : String = ""
     @State private var edited_task_desc : String = ""
+    @State private var edited_task_due_date : Date = Date()
 
     var body: some View {
         NavigationStack {
@@ -281,6 +279,7 @@ struct showTaskInfoSheet: View {
                             .frame(height: 500)
                             .background(.ultraThinMaterial)
                             .cornerRadius(3)
+                        
                     }
                     .padding(10)
                 } else {
@@ -318,6 +317,7 @@ struct showTaskInfoSheet: View {
                     if isEditing {
                         Button {
                             isEditing = false
+                            updateTask()
                         } label: {
                             Image(systemName: "checkmark")
                         }
@@ -345,9 +345,27 @@ struct showTaskInfoSheet: View {
             }
         }
     }
+    
+    func updateTask() {
+        Task {
+            do {
+//                let result = try await TaskService.update(title: new_task_name, description: new_task_desc, point_value: new_task_point_amt)
+//
+//                appState.addTask(result[0])
+//                
+//                // Flush Values
+//                new_task_name = ""
+//                new_task_desc = ""
+            } catch {
+                print("[CreateTask] Error: \(error)")
+            }
+            
+        }
+    }
 }
 
 #Preview {
     TaskListView(show_create_new_task: .constant(false))
-        .environmentObject(AppState(load_mock_data: true))
+        .environmentObject(AppState(load_mock_data: false))
 }
+

@@ -48,6 +48,7 @@ struct TaskTabView: View {
                     .frame(height: 2)
                 
                 TaskListView(show_create_new_task: $showingAddMenu)
+            
             }
         }
     }

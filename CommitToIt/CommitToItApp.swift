@@ -11,6 +11,11 @@ import SwiftUI
 struct CommitToItApp: App {
     @StateObject var appState = AppState.shared
     
+    init() {
+        NotificationService.shared.requestPermission()
+        UNUserNotificationCenter.current().delegate = NotificationDelegate.shared
+    }
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
