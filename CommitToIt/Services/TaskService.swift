@@ -23,9 +23,9 @@ final class TaskService {
         return response.data ?? []
     }
     
-    static func createTask(title: String, description: String?, point_value: Int) async throws -> [TaskItem] {
+    static func createTask(title: String, description: String?, point_value: Int, due_date: Date?) async throws -> [TaskItem] {
         
-        let body = AddTaskRequest(user_id: AppState.shared.user_id, title: title, description: description, point_value: point_value)
+        let body = AddTaskRequest(user_id: AppState.shared.user_id, title: title, description: description, point_value: point_value, due_date: due_date)
         let encodedBody = try JSONEncoder().encode(body)
         
         let data = try await APIClient.request(
@@ -82,6 +82,23 @@ final class TaskService {
         let data = try await APIClient.request(
             urlString: "/task?user_id=\(AppState.shared.user_id)&filter=completed",
             method: "GET"
+        )
+
+        let decoder = Foundation.JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+
+        let response = try decoder.decode(TaskResponse.self, from: data)
+        
+        return response.data ?? []
+    }
+    
+    static func updateTaskInfo(title: String, description: String, due_date: Date, task_id: Int) async throws -> [TaskItem] {
+        let body = DeleteTaskRequest(user_id: AppState.shared.user_id, task_id: task_id, )
+        let encodedBody = try JSONEncoder().encode(body)
+        
+        let data = try await APIClient.request(
+            urlString: "/task/update-task",
+            method: "POST"
         )
 
         let decoder = Foundation.JSONDecoder()

@@ -14,13 +14,15 @@ struct AddTaskRequest: Encodable {
     let title: String
     let description: String?
     let point_value: Int
+    let due_date: Date?
 }
 
 struct UpdateTaskRequest {
     let user_id: Int
     let task_id: Int
-    let title: String?
-    let description: String?
+    let title: String
+    let description: String
+    let due_date: Date
 }
 
 struct MarkTaskCompletedRequest: Encodable {

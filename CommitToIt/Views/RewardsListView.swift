@@ -17,11 +17,11 @@ struct RewardsListView: View {
         
     var body: some View {
         ZStack {
-            if appState.user_rewards.isEmpty {
+            if appState.user_rewards.filter({ $0.redeemed_at == nil }).count == 0 {
                 VStack {
                     Image(systemName: "exclamationmark.circle")
                         .font(.system(size: 30))
-                    Text("No Rewards Purchased")
+                    Text("No Rewards to Redeem")
                         .font(.title3)
                         .multilineTextAlignment(.center)
                 }
