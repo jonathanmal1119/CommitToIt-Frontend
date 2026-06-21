@@ -51,7 +51,7 @@ final class AppState: ObservableObject {
         ]
         
         self.user_tasks = [
-            TaskItem(id: 0, title: "Add eUser Logins", description: "Preview description buddy",point_value: 10, completed_at: Calendar.current.date(byAdding: .day, value: -1, to: Date()), filter: "pending"),
+            TaskItem(id: 0, title: "Add eUser Logins", description: "Preview description buddy",point_value: 10, due_date: Date(), completed_at: Calendar.current.date(byAdding: .day, value: -1, to: Date()), filter: "pending"),
         ]
         
         self.user_rewards = [

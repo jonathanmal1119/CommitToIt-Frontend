@@ -21,6 +21,7 @@ struct TaskListView: View {
     @State private var new_task_name : String = ""
     @State private var new_task_point_amt : Int = 10
     @State private var new_task_desc : String = ""
+    @State private var new_task_due_date : Date = Date()
     
     var body: some View {
         NavigationStack{
@@ -84,6 +85,9 @@ struct TaskListView: View {
                     .font(.system(size: 20))
                     .lineLimit(2)
                     .truncationMode(.tail)
+                
+                Text("\((task.due_date ?? Date()).formatted(.dateTime.month(.abbreviated).day().year().hour().minute()))")
+                    .font(.caption2)
             }
     
             Spacer(minLength: 40)
@@ -135,9 +139,20 @@ struct TaskListView: View {
                 .background(.ultraThinMaterial)
                 .cornerRadius(3)
             
+            Text("Due Date")
+                .font(.caption)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            
+            DatePicker("", selection: $new_task_due_date)
+                .datePickerStyle(.compact)
+                .labelsHidden()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.bottom, 10)
+            
             HStack (spacing: 20) {
                 Button {
                     self.show_create_new_task = false
+                    errorMessage = nil
                     
                     addTask()
 
@@ -153,10 +168,12 @@ struct TaskListView: View {
                 Button {
                     // Close
                     self.show_create_new_task = false
+                    errorMessage = nil
                     
                         // Flush Values
                     new_task_name = ""
                     new_task_desc = ""
+                    new_task_due_date = Date()
                 } label : {
                     Text("Cancel")
                         .padding(5)
@@ -185,6 +202,9 @@ struct TaskListView: View {
 
                 if result {
                     appState.removeTask(id: deletingTask.id)
+                    
+                    // Cancel the notification for this task
+                    NotificationService.shared.cancelTaskReminder(taskId: deletingTask.id)
                 }
             } catch {
                 print("[CompleteTask] Error: \(error)")
@@ -205,6 +225,9 @@ struct TaskListView: View {
                 appState.removeTask(id: task.id)
                 appState.addCompletedTask(task)
                 
+                // Cancel the notification for this task
+                NotificationService.shared.cancelTaskReminder(taskId: task.id)
+                
                 let syncStats = try await UserService.fetchUserStats(user_id: appState.user_id)
                 
                 appState.setUserStats(syncStats)
@@ -217,15 +240,35 @@ struct TaskListView: View {
     private func addTask() {
         Task {
             do {
-                let result = try await TaskService.createTask(title: new_task_name, description: new_task_desc, point_value: new_task_point_amt, due_date: Date())
+                
+                let result = try await TaskService.createTask(title: new_task_name, description: new_task_desc, point_value: new_task_point_amt, due_date: new_task_due_date)
+                
+                print(result)
+                
+                guard !result.isEmpty else {
+                    errorMessage = "Failed to create task: No data returned"
+                    return
+                }
 
-                appState.addTask(result[0])
+                let newTask = result[0]
+                appState.addTask(newTask)
+                
+                // Schedule notification if task has a due date
+                if let dueDate = newTask.due_date {
+                    try? await NotificationService.shared.scheduleTaskDueTomorrowReminder(
+                        taskId: newTask.id,
+                        taskTitle: newTask.title,
+                        dueDate: dueDate
+                    )
+                }
                 
                 // Flush Values
                 new_task_name = ""
                 new_task_desc = ""
+                new_task_due_date = Date()
             } catch {
                 print("[CreateTask] Error: \(error)")
+                errorMessage = "Failed to create task: \(error.localizedDescription)"
             }
             
         }
@@ -349,15 +392,30 @@ struct showTaskInfoSheet: View {
     func updateTask() {
         Task {
             do {
-//                let result = try await TaskService.update(title: new_task_name, description: new_task_desc, point_value: new_task_point_amt)
-//
-//                appState.addTask(result[0])
-//                
-//                // Flush Values
-//                new_task_name = ""
-//                new_task_desc = ""
+                // TODO: Implement task update API call
+                // Example implementation:
+                // let result = try await TaskService.updateTask(
+                //     taskId: task.id,
+                //     title: edited_task_name,
+                //     description: edited_task_desc,
+                //     dueDate: edited_task_due_date
+                // )
+                
+                // When implemented, reschedule notification:
+                // Cancel old notification
+                // NotificationService.shared.cancelTaskReminder(taskId: task.id)
+                
+                // Schedule new notification with updated details
+                // if let dueDate = edited_task_due_date {
+                //     try? await NotificationService.shared.scheduleTaskDueTomorrowReminder(
+                //         taskId: task.id,
+                //         taskTitle: edited_task_name,
+                //         dueDate: dueDate
+                //     )
+                // }
+                
             } catch {
-                print("[CreateTask] Error: \(error)")
+                print("[UpdateTask] Error: \(error)")
             }
             
         }

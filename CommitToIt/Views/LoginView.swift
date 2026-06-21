@@ -107,8 +107,8 @@ struct LoginView: View {
 }
 
 struct LoginPageView: View {
-    @State private var login_password = "tttttt"
-    @State private var login_email = "t@t.com"
+    @State private var login_password = ""
+    @State private var login_email = ""
         
     @State private var errorDisplay: Bool = false
         

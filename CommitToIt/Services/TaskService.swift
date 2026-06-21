@@ -26,7 +26,16 @@ final class TaskService {
     static func createTask(title: String, description: String?, point_value: Int, due_date: Date?) async throws -> [TaskItem] {
         
         let body = AddTaskRequest(user_id: AppState.shared.user_id, title: title, description: description, point_value: point_value, due_date: due_date)
-        let encodedBody = try JSONEncoder().encode(body)
+        
+        let encoder = JSONEncoder()
+        
+        // MySQL datetime format: "YYYY-MM-DD HH:MM:SS"
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+        encoder.dateEncodingStrategy = .formatted(dateFormatter)
+        let encodedBody = try encoder.encode(body)
+        
         
         let data = try await APIClient.request(
             urlString: "/task/add-task",

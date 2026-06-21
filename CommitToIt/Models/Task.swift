@@ -48,6 +48,7 @@ struct TaskItem: Codable, Identifiable {
     let title: String
     let description: String?
     let point_value: Int
+    let due_date: Date?
     var completed_at: Date?
     let filter: String?
     
@@ -58,5 +59,6 @@ struct TaskItem: Codable, Identifiable {
         case point_value = "point_value"
         case completed_at = "completed_at"
         case filter = "filter"
+        case due_date = "due_date"
     }
 }

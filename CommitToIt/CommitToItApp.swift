@@ -12,7 +12,7 @@ struct CommitToItApp: App {
     @StateObject var appState = AppState.shared
     
     init() {
-        NotificationService.shared.requestPermission()
+        // Set the notification delegate synchronously
         UNUserNotificationCenter.current().delegate = NotificationDelegate.shared
     }
     
@@ -21,6 +21,8 @@ struct CommitToItApp: App {
             ContentView()
                 .environmentObject(appState)
                 .task {
+                    // Request notification permission asynchronously
+                    _ = try? await NotificationService.shared.requestPermission()
                     await runStartUpSync()
                 }
         }
@@ -72,6 +74,17 @@ struct CommitToItApp: App {
             let taskResponse = try await TaskService.fetchUserTasks()
 
             AppState.shared.setUserTasks(taskResponse)
+            
+            // Schedule notifications for all pending tasks
+            for task in taskResponse {
+                if let dueDate = task.due_date {
+                    try? await NotificationService.shared.scheduleTaskDueTomorrowReminder(
+                        taskId: task.id,
+                        taskTitle: task.title,
+                        dueDate: dueDate
+                    )
+                }
+            }
             
             let completedTasksResponse = try await TaskService.fetchCompletedUserTasks()
             
