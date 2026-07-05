@@ -29,8 +29,10 @@ final class NotificationSettingsStore {
     /// How long before `due_date` the first reminder fires.
     var firstReminderOffset: TimeInterval {
         get {
-            let stored = UserDefaults.standard.double(forKey: Keys.firstReminderOffset)
-            return stored == 0 ? Defaults.firstReminderOffset : stored
+            guard UserDefaults.standard.object(forKey: Keys.firstReminderOffset) != nil else {
+                return Defaults.firstReminderOffset
+            }
+            return UserDefaults.standard.double(forKey: Keys.firstReminderOffset)
         }
         set {
             UserDefaults.standard.set(newValue, forKey: Keys.firstReminderOffset)
@@ -40,8 +42,10 @@ final class NotificationSettingsStore {
     /// How long before `due_date` the second reminder fires.
     var secondReminderOffset: TimeInterval {
         get {
-            let stored = UserDefaults.standard.double(forKey: Keys.secondReminderOffset)
-            return stored == 0 ? Defaults.secondReminderOffset : stored
+            guard UserDefaults.standard.object(forKey: Keys.secondReminderOffset) != nil else {
+                return Defaults.secondReminderOffset
+            }
+            return UserDefaults.standard.double(forKey: Keys.secondReminderOffset)
         }
         set {
             UserDefaults.standard.set(newValue, forKey: Keys.secondReminderOffset)

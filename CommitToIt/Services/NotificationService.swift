@@ -287,11 +287,58 @@ class NotificationService {
     
     // MARK: - Task Reminders (First / Second)
 
+    /// A task's first or second due-date reminder. Centralizes the per-kind
+    /// copy and identifier so scheduling and cancellation can't drift apart.
+    @MainActor
+    private enum ReminderKind: CaseIterable {
+        case first
+        case second
+
+        var suffix: String {
+            switch self {
+            case .first: return "first"
+            case .second: return "second"
+            }
+        }
+
+        var title: String {
+            switch self {
+            case .first: return "Task Reminder"
+            case .second: return "Final Reminder"
+            }
+        }
+
+        var userInfoType: String {
+            switch self {
+            case .first: return "firstReminder"
+            case .second: return "secondReminder"
+            }
+        }
+
+        func body(taskTitle: String) -> String {
+            switch self {
+            case .first: return "\"\(taskTitle)\" is due soon."
+            case .second: return "\"\(taskTitle)\" is due very soon!"
+            }
+        }
+
+        func offset(from settings: NotificationSettingsStore) -> TimeInterval {
+            switch self {
+            case .first: return settings.firstReminderOffset
+            case .second: return settings.secondReminderOffset
+            }
+        }
+
+        func identifier(for taskId: Int) -> String {
+            "task_\(taskId)_\(suffix)"
+        }
+    }
+
     /// Schedule a task's first and second due-date reminders, reading offsets
     /// from `NotificationSettingsStore`. Any offset whose resulting fire date
-    /// has already passed is skipped silently; the other reminder still
-    /// schedules if its time hasn't passed. Also purges the legacy
-    /// single-reminder identifier from older app versions.
+    /// has already passed (or otherwise fails to schedule) is skipped
+    /// silently; the other reminder still schedules independently. Also
+    /// purges the legacy single-reminder identifier from older app versions.
     /// - Parameters:
     ///   - taskId: Unique task identifier (used to build notification IDs)
     ///   - taskTitle: The task title to display
@@ -312,63 +359,29 @@ class NotificationService {
             return
         }
 
-        let reminders: [(suffix: String, offset: TimeInterval, title: String, body: String)] = [
-            (
-                "first",
-                NotificationSettingsStore.shared.firstReminderOffset,
-                "Task Reminder",
-                "\"\(taskTitle)\" is due soon."
-            ),
-            (
-                "second",
-                NotificationSettingsStore.shared.secondReminderOffset,
-                "Final Reminder",
-                "\"\(taskTitle)\" is due very soon!"
-            )
-        ]
+        let settings = NotificationSettingsStore.shared
 
-        for reminder in reminders {
-            let fireDate = dueDate.addingTimeInterval(-reminder.offset)
-            guard fireDate > Date() else {
+        for kind in ReminderKind.allCases {
+            let fireDate = dueDate.addingTimeInterval(-kind.offset(from: settings))
+            do {
+                try await scheduleNotification(
+                    title: kind.title,
+                    body: kind.body(taskTitle: taskTitle),
+                    at: fireDate,
+                    identifier: kind.identifier(for: taskId),
+                    badge: NSNumber(value: 1),
+                    userInfo: ["taskId": String(taskId), "type": kind.userInfoType]
+                )
                 #if DEBUG
-                print("⚠️ Task \(taskId) \(reminder.suffix) reminder time has passed - skipping")
+                print("✓ Scheduled \(kind.suffix) reminder for task \(taskId) at \(fireDate.formatted())")
                 #endif
-                continue
+            } catch {
+                // Independent per-reminder skip: a past fire date or any other
+                // scheduling failure for one reminder must not prevent the other.
+                #if DEBUG
+                print("⚠️ Task \(taskId) \(kind.suffix) reminder not scheduled: \(error)")
+                #endif
             }
-
-            let identifier = "task_\(taskId)_\(reminder.suffix)"
-
-            let content = UNMutableNotificationContent()
-            content.title = reminder.title
-            content.body = reminder.body
-            content.sound = .default
-            content.badge = NSNumber(value: 1)
-            content.userInfo = [
-                "taskId": String(taskId),
-                "type": reminder.suffix == "first" ? "firstReminder" : "secondReminder"
-            ]
-
-            let components = Calendar.current.dateComponents(
-                [.year, .month, .day, .hour, .minute],
-                from: fireDate
-            )
-
-            let trigger = UNCalendarNotificationTrigger(
-                dateMatching: components,
-                repeats: false
-            )
-
-            let request = UNNotificationRequest(
-                identifier: identifier,
-                content: content,
-                trigger: trigger
-            )
-
-            try await center.add(request)
-
-            #if DEBUG
-            print("✓ Scheduled \(reminder.suffix) reminder for task \(taskId) at \(fireDate.formatted())")
-            #endif
         }
     }
 
@@ -376,11 +389,9 @@ class NotificationService {
     /// identifier from the old scheme.
     /// - Parameter taskId: The task ID
     func cancelTaskReminders(taskId: Int) {
-        cancelNotifications(withIdentifiers: [
-            "task_\(taskId)_first",
-            "task_\(taskId)_second",
-            "task_\(taskId)"
-        ])
+        cancelNotifications(withIdentifiers:
+            ReminderKind.allCases.map { $0.identifier(for: taskId) } + ["task_\(taskId)"]
+        )
     }
 
     /// Cancel a task's existing reminders and schedule new ones reflecting an
