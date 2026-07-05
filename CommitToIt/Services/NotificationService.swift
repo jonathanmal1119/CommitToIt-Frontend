@@ -285,35 +285,25 @@ class NotificationService {
         )
     }
     
-    // MARK: - Task Due Tomorrow Reminder
-    
-    /// Schedule a notification for 24 hours before task is due
+    // MARK: - Task Reminders (First / Second)
+
+    /// Schedule a task's first and second due-date reminders, reading offsets
+    /// from `NotificationSettingsStore`. Any offset whose resulting fire date
+    /// has already passed is skipped silently; the other reminder still
+    /// schedules if its time hasn't passed. Also purges the legacy
+    /// single-reminder identifier from older app versions.
     /// - Parameters:
-    ///   - taskId: Unique task identifier (used as notification ID)
+    ///   - taskId: Unique task identifier (used to build notification IDs)
     ///   - taskTitle: The task title to display
     ///   - dueDate: When the task is due
-    /// - Note: Notification will be scheduled for 24 hours before the due date
-    func scheduleTaskDueTomorrowReminder(
+    func scheduleTaskReminders(
         taskId: Int,
         taskTitle: String,
         dueDate: Date
     ) async throws {
-        // Calculate notification time (24 hours before due date)
-        let notificationDate = Calendar.current.date(
-            byAdding: .hour,
-            value: -24,
-            to: dueDate
-        ) ?? dueDate
-        
-        // Only schedule if notification time is in the future
-        guard notificationDate > Date() else {
-            #if DEBUG
-            print("⚠️ Task \(taskId) due date is less than 24 hours away - skipping notification")
-            #endif
-            return
-        }
-        
-        // Check authorization
+        // Purge the legacy single-reminder identifier from the old scheme
+        cancelNotification(withIdentifier: "task_\(taskId)")
+
         let status = await checkAuthorizationStatus()
         guard status == .authorized else {
             #if DEBUG
@@ -321,52 +311,94 @@ class NotificationService {
             #endif
             return
         }
-        
-        let identifier = "task_\(taskId)"
-        
-        // Create notification content
-        let content = UNMutableNotificationContent()
-        content.title = "Task Due Tomorrow"
-        content.body = taskTitle
-        content.sound = .default
-        content.badge = NSNumber(value: 1)
-        content.userInfo = [
-            "taskId": String(taskId),
-            "type": "taskDueTomorrow"
+
+        let reminders: [(suffix: String, offset: TimeInterval, title: String, body: String)] = [
+            (
+                "first",
+                NotificationSettingsStore.shared.firstReminderOffset,
+                "Task Reminder",
+                "\"\(taskTitle)\" is due soon."
+            ),
+            (
+                "second",
+                NotificationSettingsStore.shared.secondReminderOffset,
+                "Final Reminder",
+                "\"\(taskTitle)\" is due very soon!"
+            )
         ]
-        
-        // Create calendar-based trigger
-        let components = Calendar.current.dateComponents(
-            [.year, .month, .day, .hour, .minute],
-            from: notificationDate
-        )
-        
-        let trigger = UNCalendarNotificationTrigger(
-            dateMatching: components,
-            repeats: false
-        )
-        
-        // Create and add notification request
-        let request = UNNotificationRequest(
-            identifier: identifier,
-            content: content,
-            trigger: trigger
-        )
-        
-        try await center.add(request)
-        
-        #if DEBUG
-        print("✓ Scheduled notification for task \(taskId) at \(notificationDate.formatted())")
-        #endif
+
+        for reminder in reminders {
+            let fireDate = dueDate.addingTimeInterval(-reminder.offset)
+            guard fireDate > Date() else {
+                #if DEBUG
+                print("⚠️ Task \(taskId) \(reminder.suffix) reminder time has passed - skipping")
+                #endif
+                continue
+            }
+
+            let identifier = "task_\(taskId)_\(reminder.suffix)"
+
+            let content = UNMutableNotificationContent()
+            content.title = reminder.title
+            content.body = reminder.body
+            content.sound = .default
+            content.badge = NSNumber(value: 1)
+            content.userInfo = [
+                "taskId": String(taskId),
+                "type": reminder.suffix == "first" ? "firstReminder" : "secondReminder"
+            ]
+
+            let components = Calendar.current.dateComponents(
+                [.year, .month, .day, .hour, .minute],
+                from: fireDate
+            )
+
+            let trigger = UNCalendarNotificationTrigger(
+                dateMatching: components,
+                repeats: false
+            )
+
+            let request = UNNotificationRequest(
+                identifier: identifier,
+                content: content,
+                trigger: trigger
+            )
+
+            try await center.add(request)
+
+            #if DEBUG
+            print("✓ Scheduled \(reminder.suffix) reminder for task \(taskId) at \(fireDate.formatted())")
+            #endif
+        }
     }
-    
-    /// Cancel task reminder notification
+
+    /// Cancel both of a task's reminders, plus the legacy single-reminder
+    /// identifier from the old scheme.
     /// - Parameter taskId: The task ID
-    func cancelTaskReminder(taskId: Int) {
-        let identifier = "task_\(taskId)"
-        cancelNotification(withIdentifier: identifier)
+    func cancelTaskReminders(taskId: Int) {
+        cancelNotifications(withIdentifiers: [
+            "task_\(taskId)_first",
+            "task_\(taskId)_second",
+            "task_\(taskId)"
+        ])
     }
-    
+
+    /// Cancel a task's existing reminders and schedule new ones reflecting an
+    /// updated title/due date. Not yet called from any production flow — the
+    /// task-edit save flow that will call this doesn't exist yet.
+    /// - Parameters:
+    ///   - taskId: Unique task identifier
+    ///   - taskTitle: The updated task title
+    ///   - dueDate: The updated due date
+    func rescheduleTaskReminders(
+        taskId: Int,
+        taskTitle: String,
+        dueDate: Date
+    ) async throws {
+        cancelTaskReminders(taskId: taskId)
+        try await scheduleTaskReminders(taskId: taskId, taskTitle: taskTitle, dueDate: dueDate)
+    }
+
     // MARK: - Cancel Notifications
     
     /// Cancel a specific notification

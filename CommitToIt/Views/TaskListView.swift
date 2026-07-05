@@ -204,7 +204,7 @@ struct TaskListView: View {
                     appState.removeTask(id: deletingTask.id)
                     
                     // Cancel the notification for this task
-                    NotificationService.shared.cancelTaskReminder(taskId: deletingTask.id)
+                    NotificationService.shared.cancelTaskReminders(taskId: deletingTask.id)
                 }
             } catch {
                 print("[CompleteTask] Error: \(error)")
@@ -226,7 +226,7 @@ struct TaskListView: View {
                 appState.addCompletedTask(task)
                 
                 // Cancel the notification for this task
-                NotificationService.shared.cancelTaskReminder(taskId: task.id)
+                NotificationService.shared.cancelTaskReminders(taskId: task.id)
                 
                 let syncStats = try await UserService.fetchUserStats(user_id: appState.user_id)
                 
@@ -255,7 +255,7 @@ struct TaskListView: View {
                 
                 // Schedule notification if task has a due date
                 if let dueDate = newTask.due_date {
-                    try? await NotificationService.shared.scheduleTaskDueTomorrowReminder(
+                    try? await NotificationService.shared.scheduleTaskReminders(
                         taskId: newTask.id,
                         taskTitle: newTask.title,
                         dueDate: dueDate
@@ -401,18 +401,12 @@ struct showTaskInfoSheet: View {
                 //     dueDate: edited_task_due_date
                 // )
                 
-                // When implemented, reschedule notification:
-                // Cancel old notification
-                // NotificationService.shared.cancelTaskReminder(taskId: task.id)
-                
-                // Schedule new notification with updated details
-                // if let dueDate = edited_task_due_date {
-                //     try? await NotificationService.shared.scheduleTaskDueTomorrowReminder(
-                //         taskId: task.id,
-                //         taskTitle: edited_task_name,
-                //         dueDate: dueDate
-                //     )
-                // }
+                // When implemented, reschedule notifications for the updated title/due date:
+                // try? await NotificationService.shared.rescheduleTaskReminders(
+                //     taskId: task.id,
+                //     taskTitle: edited_task_name,
+                //     dueDate: edited_task_due_date
+                // )
                 
             } catch {
                 print("[UpdateTask] Error: \(error)")
