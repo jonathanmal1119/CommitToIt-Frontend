@@ -9,6 +9,10 @@ struct RewardsView: View {
 
     @Environment(\.colorScheme) private var colorScheme
 
+    var sortedRewards: [PurchaseableReward] {
+        appState.redeemable_rewards.sorted { $0.cost < $1.cost }
+    }
+
     var body: some View {
         VStack {
             ZStack {
@@ -16,7 +20,7 @@ struct RewardsView: View {
                     .font(.largeTitle.bold())
                     .frame(maxWidth: .infinity)
                     .multilineTextAlignment(.center)
-                
+
             }
             .padding(.bottom, 1)
 
@@ -38,7 +42,7 @@ struct RewardsView: View {
             } else {
                 ScrollView {
                     VStack(spacing: 5) {
-                        ForEach(appState.redeemable_rewards) { reward in
+                        ForEach(sortedRewards) { reward in
                             RewardCardView(reward: reward)
                         }
                     }
