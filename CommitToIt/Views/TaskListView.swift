@@ -279,11 +279,12 @@ struct TaskListView: View {
 
 struct showTaskInfoSheet: View {
     @Environment(\.dismiss) private var dismiss
-    
-    var task: TaskItem
-    
+    @EnvironmentObject var appState: AppState
+
+    @State var task: TaskItem
+
     @State var isEditing: Bool = false
-    
+
     @State private var edited_task_name : String = ""
     @State private var edited_task_desc : String = ""
     @State private var edited_task_due_date : Date = Date()
@@ -319,10 +320,22 @@ struct showTaskInfoSheet: View {
                             .font(.title2)
                             .cornerRadius(3)
                             .padding(1)
-                            .frame(height: 500)
+                            .frame(height: 400)
                             .background(.ultraThinMaterial)
                             .cornerRadius(3)
-                        
+
+                        Text("Due Date")
+                            .font(.caption)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .padding(.top, 10)
+
+                        Divider()
+
+                        DatePicker("", selection: $edited_task_due_date)
+                            .datePickerStyle(.compact)
+                            .labelsHidden()
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
                     }
                     .padding(10)
                 } else {
@@ -330,22 +343,32 @@ struct showTaskInfoSheet: View {
                         Text("Task Name")
                             .font(.caption)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                        
+
                         Divider()
-                        
+
                         Text("\(task.title)")
                             .font(.title)
                             .padding(.bottom, 10)
                             .lineLimit(1)
                             .truncationMode(.tail)
-                        
+
                         Text("Task Description")
                             .font(.caption)
                             .frame(maxWidth: .infinity, alignment: .leading)
-                        
+
                         Divider()
-                        
+
                         Text("\(task.description ?? "")")
+                            .font(.title2)
+                            .padding(.bottom, 10)
+
+                        Text("Due Date")
+                            .font(.caption)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
+                        Divider()
+
+                        Text("\((task.due_date ?? Date()).formatted(.dateTime.month(.abbreviated).day().year().hour().minute()))")
                             .font(.title2)
                             .padding(.top, 9)
                     }
@@ -370,6 +393,7 @@ struct showTaskInfoSheet: View {
                             isEditing = true
                             edited_task_name = task.title
                             edited_task_desc = task.description ?? ""
+                            edited_task_due_date = task.due_date ?? Date()
                         } label: {
                             Image(systemName: "pencil")
                         }
@@ -392,32 +416,32 @@ struct showTaskInfoSheet: View {
     func updateTask() {
         Task {
             do {
-                // TODO: Implement task update API call
-                // Example implementation:
-                // let result = try await TaskService.updateTask(
-                //     taskId: task.id,
-                //     title: edited_task_name,
-                //     description: edited_task_desc,
-                //     dueDate: edited_task_due_date
-                // )
-                
-                // When implemented, reschedule notification:
-                // Cancel old notification
-                // NotificationService.shared.cancelTaskReminder(taskId: task.id)
-                
-                // Schedule new notification with updated details
-                // if let dueDate = edited_task_due_date {
-                //     try? await NotificationService.shared.scheduleTaskDueTomorrowReminder(
-                //         taskId: task.id,
-                //         taskTitle: edited_task_name,
-                //         dueDate: dueDate
-                //     )
-                // }
-                
+                let result = try await TaskService.updateTaskInfo(
+                    title: edited_task_name,
+                    description: edited_task_desc,
+                    due_date: edited_task_due_date,
+                    task_id: task.id
+                )
+
+                guard let updatedTask = result else { return }
+
+                task = updatedTask
+                appState.updateTask(updatedTask)
+
+                // Reschedule the reminder around the new due date
+                NotificationService.shared.cancelTaskReminder(taskId: task.id)
+
+                if let dueDate = updatedTask.due_date {
+                    try? await NotificationService.shared.scheduleTaskDueTomorrowReminder(
+                        taskId: updatedTask.id,
+                        taskTitle: updatedTask.title,
+                        dueDate: dueDate
+                    )
+                }
             } catch {
                 print("[UpdateTask] Error: \(error)")
             }
-            
+
         }
     }
 }

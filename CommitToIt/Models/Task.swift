@@ -17,12 +17,12 @@ struct AddTaskRequest: Encodable {
     let due_date: Date?
 }
 
-struct UpdateTaskRequest {
+struct UpdateTaskRequest: Encodable {
     let user_id: Int
     let task_id: Int
-    let title: String
-    let description: String
-    let due_date: Date
+    let title: String?
+    let description: String?
+    let due_date: Date?
 }
 
 struct MarkTaskCompletedRequest: Encodable {
@@ -41,6 +41,12 @@ struct TaskResponse: Decodable {
     let status: String
     let message: String
     let data: [TaskItem]?
+}
+
+struct UpdateTaskResponse: Decodable {
+    let status: String
+    let message: String
+    let data: TaskItem?
 }
 
 struct TaskItem: Codable, Identifiable {
