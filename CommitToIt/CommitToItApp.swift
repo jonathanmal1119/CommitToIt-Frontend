@@ -78,7 +78,7 @@ struct CommitToItApp: App {
             // Schedule notifications for all pending tasks
             for task in taskResponse {
                 if let dueDate = task.due_date {
-                    try? await NotificationService.shared.scheduleTaskDueTomorrowReminder(
+                    try? await NotificationService.shared.scheduleTaskReminders(
                         taskId: task.id,
                         taskTitle: task.title,
                         dueDate: dueDate
