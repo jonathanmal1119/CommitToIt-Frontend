@@ -22,6 +22,7 @@ struct TaskListView: View {
     @State private var new_task_point_amt : Int = 10
     @State private var new_task_desc : String = ""
     @State private var new_task_due_date : Date = Date()
+    @State private var create_task_error : String? = nil
     
     var body: some View {
         NavigationStack{
@@ -35,9 +36,6 @@ struct TaskListView: View {
                     }
                 }
                 else {
-                    if show_create_new_task {
-                        createNewTaskEntry()
-                    }
                     ZStack{
                         if appState.user_tasks.count == 0 {
                             VStack {
@@ -76,8 +74,16 @@ struct TaskListView: View {
                 }
             }
         }
+        .sheet(isPresented: $show_create_new_task, onDismiss: {
+            create_task_error = nil
+            new_task_name = ""
+            new_task_desc = ""
+            new_task_due_date = Date()
+        }) {
+            createNewTaskEntry()
+        }
     }
-    
+
     func createTaskEntry(task : TaskItem) -> some View {
         HStack {
             VStack (alignment: .leading, spacing: 0) {
@@ -100,96 +106,106 @@ struct TaskListView: View {
     }
     
     func createNewTaskEntry() -> some View {
-        VStack {
-            Text("Task Name")
-                .font(.caption)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            
-            HStack{
-                TextField("", text: $new_task_name)
-                    .textFieldStyle(.roundedBorder)
-                    .lineLimit(1)
-                    .truncationMode(.tail)
-                    
-                Text("\(new_task_point_amt)")
-                    .frame(maxWidth: 20)
-                    .padding(.leading, 30)
+        NavigationStack {
+            ScrollView {
+                VStack (alignment: .leading) {
+                    Text("Task Name")
+                        .font(.caption)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                    HStack{
+                        TextField("", text: $new_task_name)
+                            .textFieldStyle(.roundedBorder)
+                            .lineLimit(1)
+                            .truncationMode(.tail)
+
+                        Text("\(new_task_point_amt)")
+                            .frame(maxWidth: 20)
+                            .padding(.leading, 30)
 //                TextField("Reward Points", value: $new_task_point_amt, format: .number)
 //                    .keyboardType(.numberPad)
 //                    .textFieldStyle(.roundedBorder)
 //                    .frame(maxWidth: 50)
-                
-                Image(systemName: "star.fill")
-                    .foregroundColor(.accent)
-                    .padding(.top, -3)
-            }
-            
-            .padding(.bottom, 3)
-            
-            Text("Task Description")
-                .font(.caption)
-                .frame(maxWidth: .infinity, alignment: .leading)
-        
-            TextEditor(text: $new_task_desc)
-                .cornerRadius(3)
-                .padding(1)
-                .lineLimit(10)
-                .truncationMode(.tail)
-                .frame(height: 150)  
-                .background(.ultraThinMaterial)
-                .cornerRadius(3)
-            
-            Text("Due Date")
-                .font(.caption)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            
-            DatePicker("", selection: $new_task_due_date)
-                .datePickerStyle(.compact)
-                .labelsHidden()
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.bottom, 10)
-            
-            HStack (spacing: 20) {
-                Button {
-                    self.show_create_new_task = false
-                    errorMessage = nil
-                    
-                    addTask()
 
-                } label : {
-                    Text("Confirm")
-                        .padding(5)
-                        .padding([.trailing, .leading], 50)
-                        .background(.secondary.opacity(0.5))
-                        .foregroundColor(.primary)
-                        .cornerRadius(10)
+                        Image(systemName: "star.fill")
+                            .foregroundColor(.accent)
+                            .padding(.top, -3)
+                    }
+
+                    .padding(.bottom, 3)
+
+                    Text("Task Description")
+                        .font(.caption)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                    TextEditor(text: $new_task_desc)
+                        .cornerRadius(3)
+                        .padding(1)
+                        .lineLimit(10)
+                        .truncationMode(.tail)
+                        .frame(height: 150)
+                        .background(.ultraThinMaterial)
+                        .cornerRadius(3)
+
+                    Text("Due Date")
+                        .font(.caption)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+
+                    DatePicker("", selection: $new_task_due_date)
+                        .datePickerStyle(.compact)
+                        .labelsHidden()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.bottom, 10)
+
+                    if let error = create_task_error {
+                        Text(error)
+                            .font(.caption)
+                            .foregroundColor(.red)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+
+                    HStack (spacing: 20) {
+                        Button {
+                            create_task_error = nil
+                            addTask()
+                        } label : {
+                            Text("Confirm")
+                                .padding(5)
+                                .padding([.trailing, .leading], 50)
+                                .background(.secondary.opacity(0.5))
+                                .foregroundColor(.primary)
+                                .cornerRadius(10)
+                        }
+
+                        Button {
+                            // Close
+                            self.show_create_new_task = false
+                        } label : {
+                            Text("Cancel")
+                                .padding(5)
+                                .padding([.trailing, .leading], 50)
+                                .background(Color.red.opacity(0.7))
+                                .cornerRadius(10)
+                                .foregroundColor(.primary)
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
                 }
-                
-                Button {
-                    // Close
-                    self.show_create_new_task = false
-                    errorMessage = nil
-                    
-                        // Flush Values
-                    new_task_name = ""
-                    new_task_desc = ""
-                    new_task_due_date = Date()
-                } label : {
-                    Text("Cancel")
-                        .padding(5)
-                        .padding([.trailing, .leading], 50)
-                        .background(Color.red.opacity(0.7))
-                        .cornerRadius(10)
-                        .foregroundColor(.primary)
+                .padding(16)
+            }
+            .navigationTitle("New Task")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        self.show_create_new_task = false
+                    } label: {
+                        Image(systemName: "xmark")
+                    }
                 }
             }
-            .frame(maxWidth: .infinity)
-            
-            Divider()
         }
-        .padding(.horizontal, 16)
-        .listRowInsets(EdgeInsets())
-        .listRowSeparator(.hidden)
+        .presentationDragIndicator(.visible)
     }
     
     
@@ -246,7 +262,7 @@ struct TaskListView: View {
                 print(result)
                 
                 guard !result.isEmpty else {
-                    errorMessage = "Failed to create task: No data returned"
+                    create_task_error = "Failed to create task: No data returned"
                     return
                 }
 
@@ -266,11 +282,13 @@ struct TaskListView: View {
                 new_task_name = ""
                 new_task_desc = ""
                 new_task_due_date = Date()
+
+                show_create_new_task = false
             } catch {
                 print("[CreateTask] Error: \(error)")
-                errorMessage = "Failed to create task: \(error.localizedDescription)"
+                create_task_error = "Failed to create task: \(error.localizedDescription)"
             }
-            
+
         }
     }
     
