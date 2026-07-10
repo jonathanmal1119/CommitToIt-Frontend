@@ -149,6 +149,12 @@ final class AppState: ObservableObject {
     func removeTask(id: Int) {
         self.user_tasks.removeAll { $0.id == id }
     }
+
+    func updateTask(_ task: TaskItem) {
+        if let index = self.user_tasks.firstIndex(where: { $0.id == task.id }) {
+            self.user_tasks[index] = task
+        }
+    }
     
     func addUserReward(_ reward: UserReward) {
         self.user_rewards.insert(reward, at: 0)

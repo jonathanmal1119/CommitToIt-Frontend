@@ -101,21 +101,30 @@ final class TaskService {
         return response.data ?? []
     }
     
-    static func updateTaskInfo(title: String, description: String, due_date: Date, task_id: Int) async throws -> [TaskItem] {
-        let body = DeleteTaskRequest(user_id: AppState.shared.user_id, task_id: task_id, )
-        let encodedBody = try JSONEncoder().encode(body)
-        
+    static func updateTaskInfo(title: String, description: String, due_date: Date, task_id: Int) async throws -> TaskItem? {
+        let body = UpdateTaskRequest(user_id: AppState.shared.user_id, task_id: task_id, title: title, description: description, due_date: due_date)
+
+        let encoder = JSONEncoder()
+
+        // MySQL datetime format: "YYYY-MM-DD HH:MM:SS"
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+        encoder.dateEncodingStrategy = .formatted(dateFormatter)
+        let encodedBody = try encoder.encode(body)
+
         let data = try await APIClient.request(
             urlString: "/task/update-task",
-            method: "POST"
+            method: "POST",
+            body: encodedBody
         )
 
         let decoder = Foundation.JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
 
-        let response = try decoder.decode(TaskResponse.self, from: data)
-        
-        return response.data ?? []
+        let response = try decoder.decode(UpdateTaskResponse.self, from: data)
+
+        return response.data
     }
 }
 

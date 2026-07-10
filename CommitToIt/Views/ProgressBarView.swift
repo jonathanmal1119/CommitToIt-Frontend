@@ -2,22 +2,47 @@ import SwiftUI
 
 struct ProgressBarView: View {
     @EnvironmentObject var appState: AppState
-    
-    private let total: Int = 400
+
+    @State private var displayedTier: Int?
+    @State private var suppressFillAnimation: Bool = false
+
+    private let tierSize: Int = 400
+
+    private var pointBalance: Int {
+        appState.user_stats.point_balance
+    }
+
+    /// The tier the live point balance falls into, independent of what's currently displayed.
+    private var tier: Int {
+        max(pointBalance, 0) / tierSize
+    }
+
+    private var effectiveTier: Int {
+        displayedTier ?? tier
+    }
+
+    private var milestoneValues: [Int] {
+        let floor = effectiveTier * tierSize
+        return [floor + 100, floor + 200, floor + 300]
+    }
 
     var progress: Double {
-        guard total > 0 else { return 0 }
-        return min(max(Double(appState.user_stats.point_balance) / Double(total), 0), 1)
+        let floor = effectiveTier * tierSize
+        return min(max(Double(pointBalance - floor) / Double(tierSize), 0), 1)
     }
-    
+
     func circleColor(for stepProgress: Double, currentProgress: Double) -> Color {
         return currentProgress >= stepProgress ? .accent : .gray
+    }
+
+    private var stepAnimation: Animation? {
+        suppressFillAnimation ? nil : .spring()
     }
 
     var body: some View {
         VStack(spacing: 0) {
             HStack(spacing: 6) {
-                Text("\(appState.user_stats.point_balance)")
+                Text("\(pointBalance)")
                     .font(Font.largeTitle.bold())
                     .padding(.leading, 8)
                 Image(systemName: "star.fill").foregroundColor(.accent)
@@ -47,49 +72,74 @@ struct ProgressBarView: View {
                                 width: geometry.size.width * CGFloat(progress),
                                 height: 8
                             )
-                            .animation(.spring(), value: appState.user_stats.point_balance)
-                        
+                            .animation(stepAnimation, value: pointBalance)
+
                     }
-                    
+
                     // Milestone 1 (25%)
                     VStack {
                         circleColor(for: 0.25, currentProgress: progress)
                             .frame(width:5 ,height: 18)
-                            .animation(.spring(), value: appState.user_stats.point_balance)
-                        
-                        Text((Double(total) * 0.25).formatted())
+                            .animation(stepAnimation, value: pointBalance)
+
+                        Text(milestoneValues[0].formatted())
                             .font(.headline)
                             .italic()
+                            .contentTransition(.numericText())
                     }
                     .position(x: geometry.size.width * 0.25 , y: geometry.size.height + 1.0)
-                    
+
                     // Milestone 2 (50%)
                     VStack {
                         circleColor(for: 0.5, currentProgress: progress)
                             .frame(width:5 ,height: 18)
-                            .animation(.spring(), value: appState.user_stats.point_balance)
+                            .animation(stepAnimation, value: pointBalance)
 
-                        Text((Double(total) * 0.5).formatted())
+                        Text(milestoneValues[1].formatted())
                             .font(.headline)
                             .italic()
+                            .contentTransition(.numericText())
                     }
                     .position(x: geometry.size.width * 0.5 , y: geometry.size.height + 1.0)
-                    
-                    
+
+
                     // Milestone 3 (75%)
                     VStack {
                         circleColor(for: 0.75, currentProgress: progress)
                             .frame(width:5 ,height: 18)
-                            .animation(.spring(), value: appState.user_stats.point_balance)
-                        
-                        Text((Double(total) * 0.75).formatted())
+                            .animation(stepAnimation, value: pointBalance)
+
+                        Text(milestoneValues[2].formatted())
                             .font(.headline)
                             .italic()
+                            .contentTransition(.numericText())
                     }
                     .position(x: geometry.size.width * 0.75 , y: geometry.size.height + 1.0)
                 }
                 .frame(height: 18)
                 .padding(.bottom, 25)
+            }
+        }
+        .onAppear {
+            if displayedTier == nil {
+                displayedTier = tier
+            }
+        }
+        .onChange(of: pointBalance) { _, _ in
+            let newTier = tier
+            let currentTier = displayedTier ?? newTier
+            guard newTier != currentTier else { return }
+
+            suppressFillAnimation = true
+            if newTier > currentTier {
+                withAnimation {
+                    displayedTier = newTier
+                }
+            } else {
+                displayedTier = newTier
+            }
+            DispatchQueue.main.async {
+                suppressFillAnimation = false
             }
         }
         .task {
