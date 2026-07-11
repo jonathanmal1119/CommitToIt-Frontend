@@ -129,7 +129,7 @@ struct HomePageView: View {
             }
             .padding(20)
             .padding(.bottom, 50)
-                
+
         }
     }
 }

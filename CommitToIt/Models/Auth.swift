@@ -16,3 +16,12 @@ struct AuthResponse: Decodable {
     let message: String
     let accessToken: String
 }
+
+struct DeleteAccountRequest: Codable {
+    let user_id: Int
+}
+
+struct DeleteAccountResponse: Decodable {
+    let status: String
+    let message: String
+}
