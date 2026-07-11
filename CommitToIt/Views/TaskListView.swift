@@ -220,7 +220,7 @@ struct TaskListView: View {
                     appState.removeTask(id: deletingTask.id)
                     
                     // Cancel the notification for this task
-                    NotificationService.shared.cancelTaskReminder(taskId: deletingTask.id)
+                    NotificationService.shared.cancelTaskReminders(taskId: deletingTask.id)
                 }
             } catch {
                 print("[CompleteTask] Error: \(error)")
@@ -242,7 +242,7 @@ struct TaskListView: View {
                 appState.addCompletedTask(task)
                 
                 // Cancel the notification for this task
-                NotificationService.shared.cancelTaskReminder(taskId: task.id)
+                NotificationService.shared.cancelTaskReminders(taskId: task.id)
                 
                 let syncStats = try await UserService.fetchUserStats(user_id: appState.user_id)
                 
@@ -271,7 +271,7 @@ struct TaskListView: View {
                 
                 // Schedule notification if task has a due date
                 if let dueDate = newTask.due_date {
-                    try? await NotificationService.shared.scheduleTaskDueTomorrowReminder(
+                    try? await NotificationService.shared.scheduleTaskReminders(
                         taskId: newTask.id,
                         taskTitle: newTask.title,
                         dueDate: dueDate
@@ -446,15 +446,15 @@ struct showTaskInfoSheet: View {
                 task = updatedTask
                 appState.updateTask(updatedTask)
 
-                // Reschedule the reminder around the new due date
-                NotificationService.shared.cancelTaskReminder(taskId: task.id)
-
+                // Reschedule the reminders around the new title/due date
                 if let dueDate = updatedTask.due_date {
-                    try? await NotificationService.shared.scheduleTaskDueTomorrowReminder(
+                    try? await NotificationService.shared.rescheduleTaskReminders(
                         taskId: updatedTask.id,
                         taskTitle: updatedTask.title,
                         dueDate: dueDate
                     )
+                } else {
+                    NotificationService.shared.cancelTaskReminders(taskId: updatedTask.id)
                 }
             } catch {
                 print("[UpdateTask] Error: \(error)")
