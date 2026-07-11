@@ -76,7 +76,32 @@ final class AuthService {
     
     static func logout() {
         AuthManager.shared.clearTokens()
-        
+
+        AppState.shared.signOut()
+    }
+
+    /// Permanently deletes the signed-in user's account server-side, then
+    /// clears local session state. Required by App Store Review Guideline
+    /// 5.1.1(v): any app that supports account creation must let the user
+    /// delete their account from within the app.
+    static func deleteAccount() async throws {
+        let body = try JSONEncoder().encode(
+            DeleteAccountRequest(user_id: AppState.shared.user_id)
+        )
+
+        let data = try await APIClient.request(
+            urlString: "/user/delete-account",
+            method: "DELETE",
+            body: body
+        )
+
+        let response = try JSONDecoder().decode(DeleteAccountResponse.self, from: data)
+
+        guard response.status == "OK" else {
+            throw APIError.httpStatus(0)
+        }
+
+        AuthManager.shared.clearTokens()
         AppState.shared.signOut()
     }
 }

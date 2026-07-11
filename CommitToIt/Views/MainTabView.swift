@@ -24,6 +24,8 @@ struct MainTabView: View {
                         LoginView()
                     case .history:
                         HistoryView()
+                    case .settings:
+                        SettingsView()
                 }
                 
             }
@@ -51,6 +53,7 @@ struct BottomNavBar: View {
             navButton(icon: "list.clipboard.fill", tab: .tasks)
             navButton(icon: "gift.fill", tab: .rewards)
             navButton(icon: "clock.arrow.trianglehead.clockwise.rotate.90.path.dotted", tab: .history)
+            navButton(icon: "gearshape.fill", tab: .settings)
         }
         .padding(.horizontal, 28)
         .padding(.vertical, 14)
