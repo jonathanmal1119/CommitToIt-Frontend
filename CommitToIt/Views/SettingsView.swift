@@ -6,7 +6,6 @@
 import SwiftUI
 
 struct SettingsView: View {
-    @Environment(\.dismiss) private var dismiss
     @EnvironmentObject var appState: AppState
 
     @State private var showSignOutConfirm = false
@@ -79,15 +78,6 @@ struct SettingsView: View {
             }
             .navigationTitle("Settings")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "xmark")
-                    }
-                }
-            }
             .confirmationDialog(
                 "Sign out of CommitToIt?",
                 isPresented: $showSignOutConfirm,
@@ -95,7 +85,6 @@ struct SettingsView: View {
             ) {
                 Button("Sign Out", role: .destructive) {
                     AuthService.logout()
-                    dismiss()
                 }
                 Button("Cancel", role: .cancel) {}
             }
@@ -127,7 +116,6 @@ struct SettingsView: View {
             do {
                 try await AuthService.deleteAccount()
                 isDeleting = false
-                dismiss()
             } catch {
                 isDeleting = false
                 deleteErrorMessage = "Couldn't delete account. Please try again later."

@@ -10,8 +10,6 @@ import SwiftUI
 struct HomePageView: View {
     @EnvironmentObject var appState: AppState
 
-    @State private var showSettings = false
-
     var body: some View {
         ZStack{
             LinearGradient(
@@ -37,10 +35,10 @@ struct HomePageView: View {
                         
                     
                     Button() {
-                        showSettings = true
+                        AuthService.logout()
                     } label: {
-                        Image(systemName: "gearshape.fill")
-                            .foregroundStyle(.primary.opacity(0.8))
+                        Image(systemName: "rectangle.portrait.and.arrow.right")
+                            .foregroundStyle(.red.opacity(0.8))
                             .font(.title2)
                     }
                     .frame(maxWidth: .infinity, alignment: .trailing)
@@ -132,9 +130,6 @@ struct HomePageView: View {
             .padding(20)
             .padding(.bottom, 50)
 
-        }
-        .sheet(isPresented: $showSettings) {
-            SettingsView()
         }
     }
 }
