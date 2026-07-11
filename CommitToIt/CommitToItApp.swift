@@ -9,6 +9,7 @@ import SwiftUI
 
 @main
 struct CommitToItApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject var appState = AppState.shared
     
     init() {
@@ -23,6 +24,12 @@ struct CommitToItApp: App {
                 .task {
                     // Request notification permission asynchronously
                     _ = try? await NotificationService.shared.requestPermission()
+
+                    // Pick up any notifications delivered while the app wasn't
+                    // running/foregrounded, so the inbox stays complete
+                    let delivered = await NotificationService.shared.getDeliveredNotifications()
+                    NotificationInboxStore.shared.syncDelivered(delivered)
+
                     await runStartUpSync()
                 }
         }
