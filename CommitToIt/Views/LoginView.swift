@@ -312,8 +312,8 @@ struct SignUpPageView: View {
                     return
                 }
                 
-                guard password.count >= 6 else {
-                    errorMessage = "Password must be at least 6 characters"
+                guard password.count >= 8 else {
+                    errorMessage = "Password must be at least 8 characters"
                     errorDisplay = true
                     try await Task.sleep(nanoseconds: 1_000_000_000)
                     errorDisplay = false
