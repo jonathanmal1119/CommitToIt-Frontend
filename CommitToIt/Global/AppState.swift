@@ -31,6 +31,7 @@ final class AppState: ObservableObject {
     @Published private(set) var user_stats: UserStats
     @Published private(set) var user_id: Int = -1
     @Published private(set) var user_info: UserInfo
+    @Published private(set) var isAdmin: Bool = false
 
     // MARK: - UI State
     @Published var isLoading: Bool = false
@@ -68,6 +69,7 @@ final class AppState: ObservableObject {
         )
         
         self.user_id = -1
+        self.isAdmin = false
         
         self.user_info = .init(
             username: "",
@@ -95,6 +97,7 @@ final class AppState: ObservableObject {
         )
         
         user_id = -1
+        isAdmin = false
         user_info = UserInfo(username: "", email: "")
             
         isLoading = false
@@ -107,6 +110,7 @@ final class AppState: ObservableObject {
         if isAuthenticated {
             let retrieved_key = keychain.get("user_id")
             self.user_id = Int(retrieved_key ?? "") ?? -1
+            self.isAdmin = keychain.get("is_admin") == "true"
         }
     }
     
@@ -136,6 +140,15 @@ final class AppState: ObservableObject {
     
     func setUserInfo(_ userInfo: UserInfo) {
         self.user_info = userInfo
+    }
+
+    func setIsAdmin(_ isAdmin: Bool) {
+        self.isAdmin = isAdmin
+        if isAdmin {
+            keychain.set("true", forkey: "is_admin")
+        } else {
+            keychain.delete("is_admin")
+        }
     }
     
     func setUserCompletedTasks(_ tasks: [TaskItem]) {

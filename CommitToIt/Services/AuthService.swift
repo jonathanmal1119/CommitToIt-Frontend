@@ -37,6 +37,7 @@ final class AuthService {
             username: response.data.username,
             email: response.data.email
         ))
+        AppState.shared.setIsAdmin(response.data.isAdmin)
         
         AppState.shared.selectedTab = .home
     }
@@ -70,6 +71,7 @@ final class AuthService {
             username: response.data.username,
             email: response.data.email
         ))
+        AppState.shared.setIsAdmin(response.data.isAdmin)
         
         AppState.shared.selectedTab = .home
     }

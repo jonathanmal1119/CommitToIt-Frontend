@@ -29,6 +29,14 @@ struct SettingsView: View {
                     LabeledContent("Email", value: appState.user_info.email)
                 }
 
+                if appState.isAdmin {
+                    Section("Admin") {
+                        NavigationLink("User Lookup") {
+                            AdminUserLookupView()
+                        }
+                    }
+                }
+
                 Section("Legal") {
                     Button("Privacy Policy") {
                         showPrivacyPolicy = true

@@ -22,5 +22,25 @@ final class UserService {
 
         return response.data
     }
+
+    static func lookupUserByUsername(username: String) async throws -> AdminUserLookupData {
+        let encodedUsername = username.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? username
+
+        let data = try await APIClient.request(
+            urlString: "/user/admin/lookup?username=\(encodedUsername)",
+            method: "GET"
+        )
+
+        let decoder = Foundation.JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+
+        let response = try decoder.decode(AdminUserLookupResponse.self, from: data)
+
+        guard response.status == "OK" else {
+            throw APIError.httpStatus(0)
+        }
+
+        return response.data
+    }
     
 }
